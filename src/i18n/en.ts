@@ -42,6 +42,8 @@ export const en: TranslationResource = {
       text: 'Text',
       freehand: 'Draw',
       continuous: 'Repeat',
+      selectByType: 'Select by type',
+      delete: 'Delete',
     },
     marker: {
       size: 'Size',

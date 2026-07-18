@@ -1,6 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useBoardStore } from '@/stores/boardStore';
-import { BOARD_TOOLS } from './objects/objectTypes';
+import { BOARD_TOOLS, type BoardObjectType } from './objects/objectTypes';
+import { idsOfType } from './objects/selection';
+
+const OBJECT_TYPES = BOARD_TOOLS.filter((tool): tool is BoardObjectType => tool !== 'select');
 
 /** オブジェクト配置ツールの選択メニュー */
 export function ToolMenu() {
@@ -9,6 +12,16 @@ export function ToolMenu() {
   const setTool = useBoardStore((state) => state.setTool);
   const continuousPlacement = useBoardStore((state) => state.continuousPlacement);
   const toggleContinuousPlacement = useBoardStore((state) => state.toggleContinuousPlacement);
+  const selectedIds = useBoardStore((state) => state.selectedIds);
+  const removeObjects = useBoardStore((state) => state.removeObjects);
+
+  const handleSelectByType = (value: string) => {
+    if (value === '') {
+      return;
+    }
+    const { objects, setSelection } = useBoardStore.getState();
+    setSelection(idsOfType(objects, value as BoardObjectType));
+  };
 
   return (
     <div className="tool-menu" role="toolbar" aria-label={t('board.tools.title')}>
@@ -27,6 +40,25 @@ export function ToolMenu() {
         <input type="checkbox" checked={continuousPlacement} onChange={toggleContinuousPlacement} />
         {t('board.tools.continuous')}
       </label>
+      <select
+        aria-label={t('board.tools.selectByType')}
+        value=""
+        onChange={(event) => handleSelectByType(event.target.value)}
+      >
+        <option value="">{t('board.tools.selectByType')}</option>
+        {OBJECT_TYPES.map((type) => (
+          <option key={type} value={type}>
+            {t(`board.tools.${type}`)}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        disabled={selectedIds.length === 0}
+        onClick={() => removeObjects(selectedIds)}
+      >
+        {t('board.tools.delete')}
+      </button>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
 import { FIELD_SPECS } from './field/fieldSpec';
 import { BoardObjects } from './objects/BoardObjects';
 import { createObjectAt } from './objects/createObject';
+import { isEditableElement, normalizeRect, selectIdsInRect } from './objects/selection';
 import {
   appendFreehandPoint,
   buildDragShape,
@@ -90,6 +91,8 @@ export function BoardCanvas() {
   const activePointers = useRef(new Map<number, Point>());
   const pinchState = useRef<{ startDistance: number; startZoom: number } | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  /** ドラッグ矩形選択の範囲(フィールド座標) */
+  const [selectionRect, setSelectionRect] = useState<{ start: Point; current: Point } | null>(null);
 
   const sportType = useBoardStore((state) => state.sportType);
   const layoutId = useBoardStore((state) => state.layoutId);
@@ -118,6 +121,25 @@ export function BoardCanvas() {
     setPreviousTool(tool);
     setDraft(null);
   }
+
+  // Delete/Backspaceで選択オブジェクトを削除する
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Delete' && event.key !== 'Backspace') {
+        return;
+      }
+      if (isEditableElement(document.activeElement)) {
+        return;
+      }
+      const { selectedIds, removeObjects } = useBoardStore.getState();
+      if (selectedIds.length > 0) {
+        event.preventDefault();
+        removeObjects(selectedIds);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Escapeで作成途中の図形をキャンセルする
   useEffect(() => {
@@ -281,6 +303,11 @@ export function BoardCanvas() {
       clearSelection,
     } = useBoardStore.getState();
     if (currentTool === 'select') {
+      // 矩形選択直後のclickイベントでは選択を維持する
+      if (justRubberBanded.current) {
+        justRubberBanded.current = false;
+        return;
+      }
       // 何もない場所のクリックで選択解除
       if (event.target === event.target.getStage()) {
         clearSelection();
@@ -314,6 +341,50 @@ export function BoardCanvas() {
     if (!continuousPlacement) {
       setTool('select');
     }
+  };
+
+  /** 空きエリアからのドラッグで矩形選択を開始する(フィット表示時のみ。ズーム中はパン優先) */
+  const justRubberBanded = useRef(false);
+
+  const handleStageMouseDown = (event: Konva.KonvaEventObject<MouseEvent>) => {
+    const { tool: currentTool, zoom: currentZoom } = useBoardStore.getState();
+    if (currentTool !== 'select' || currentZoom > 1) {
+      return;
+    }
+    if (event.target !== event.target.getStage()) {
+      return;
+    }
+    const pointer = event.target.getStage()?.getPointerPosition();
+    if (!pointer) {
+      return;
+    }
+    const fieldPoint = screenToField(stageTransform, pointer);
+    setSelectionRect({ start: fieldPoint, current: fieldPoint });
+  };
+
+  const handleStageMouseMove = (event: Konva.KonvaEventObject<MouseEvent>) => {
+    if (!selectionRect) {
+      return;
+    }
+    const pointer = event.target.getStage()?.getPointerPosition();
+    if (!pointer) {
+      return;
+    }
+    setSelectionRect({ ...selectionRect, current: screenToField(stageTransform, pointer) });
+  };
+
+  const handleStageMouseUp = () => {
+    if (!selectionRect) {
+      return;
+    }
+    const bounds = normalizeRect(selectionRect.start, selectionRect.current);
+    // 微小ドラッグは単なるクリック(選択解除)として扱う
+    if (bounds.maxX - bounds.minX > 0.5 || bounds.maxY - bounds.minY > 0.5) {
+      const { objects, setSelection } = useBoardStore.getState();
+      setSelection(selectIdsInRect(objects, bounds));
+      justRubberBanded.current = true;
+    }
+    setSelectionRect(null);
   };
 
   /** ダブルクリックで頂点ツールの図形を確定する */
@@ -356,11 +427,27 @@ export function BoardCanvas() {
             onTap={handleStageClick}
             onDblClick={handleStageDblClick}
             onDblTap={handleStageDblClick}
+            onMouseDown={handleStageMouseDown}
+            onMouseMove={handleStageMouseMove}
+            onMouseUp={handleStageMouseUp}
           >
             <Layer>
               <FieldLines spec={spec} colors={fieldColors} />
               <BoardObjects />
               {draft && <DraftPreview draft={draft} />}
+              {selectionRect && (
+                <Rect
+                  x={Math.min(selectionRect.start.x, selectionRect.current.x)}
+                  y={Math.min(selectionRect.start.y, selectionRect.current.y)}
+                  width={Math.abs(selectionRect.current.x - selectionRect.start.x)}
+                  height={Math.abs(selectionRect.current.y - selectionRect.start.y)}
+                  stroke="#00e5ff"
+                  strokeWidth={0.15}
+                  dash={[0.6, 0.4]}
+                  fill="rgba(0, 229, 255, 0.08)"
+                  listening={false}
+                />
+              )}
             </Layer>
           </Stage>
         </div>

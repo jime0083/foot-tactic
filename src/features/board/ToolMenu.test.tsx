@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ToolMenu } from './ToolMenu';
+import { createObjectAt } from './objects/createObject';
 import { useBoardStore } from '@/stores/boardStore';
 
 describe('ToolMenu', () => {
@@ -11,7 +12,36 @@ describe('ToolMenu', () => {
   it('選択+10種のオブジェクトツールが表示される', () => {
     render(<ToolMenu />);
     const toolbar = screen.getByRole('toolbar');
-    expect(toolbar.querySelectorAll('button')).toHaveLength(11);
+    expect(toolbar.querySelectorAll('.tool-menu__item')).toHaveLength(11);
+  });
+
+  it('種類で選択すると同種の全オブジェクトが選択される', async () => {
+    const player1 = createObjectAt('player', 0, 0);
+    const player2 = createObjectAt('player', 10, 10);
+    const ball = createObjectAt('ball', 20, 20);
+    useBoardStore.setState({ objects: [player1, player2, ball], selectedIds: [] });
+    render(<ToolMenu />);
+
+    await userEvent.selectOptions(screen.getByLabelText('種類で選択'), 'player');
+
+    expect(useBoardStore.getState().selectedIds).toEqual([player1.id, player2.id]);
+  });
+
+  it('削除ボタンで選択オブジェクトが削除される', async () => {
+    const player = createObjectAt('player', 0, 0);
+    const ball = createObjectAt('ball', 20, 20);
+    useBoardStore.setState({ objects: [player, ball], selectedIds: [player.id] });
+    render(<ToolMenu />);
+
+    await userEvent.click(screen.getByRole('button', { name: '削除' }));
+
+    expect(useBoardStore.getState().objects.map((o) => o.id)).toEqual([ball.id]);
+    expect(useBoardStore.getState().selectedIds).toEqual([]);
+  });
+
+  it('未選択時は削除ボタンが無効になる', () => {
+    render(<ToolMenu />);
+    expect(screen.getByRole('button', { name: '削除' })).toBeDisabled();
   });
 
   it('ツールを選ぶとストアが更新され押下状態になる', async () => {

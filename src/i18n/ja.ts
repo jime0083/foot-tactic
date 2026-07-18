@@ -33,6 +33,8 @@ export const ja = {
       text: 'テキスト',
       freehand: '手書き',
       continuous: '連続配置',
+      selectByType: '種類で選択',
+      delete: '削除',
     },
     marker: {
       size: 'サイズ',

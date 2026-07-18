@@ -3,6 +3,7 @@ import { Circle, Group, Line, Rect, RegularPolygon, Text } from 'react-konva';
 import { useBoardStore } from '@/stores/boardStore';
 import { withOpacity } from './objectStyles';
 import { angleToPoint } from './playerActions';
+import { toggleSelection } from './selection';
 import { PlayerShape } from './PlayerShape';
 import type { BoardObject, PlayerObject, PolygonObject, PolylineObject } from './objectTypes';
 
@@ -17,8 +18,14 @@ interface CommonNodeProps {
 function useCommonNodeProps(objectId: string): CommonNodeProps {
   const tool = useBoardStore((state) => state.tool);
   const updateObject = useBoardStore((state) => state.updateObject);
-  const setSelection = useBoardStore((state) => state.setSelection);
   const selectable = tool === 'select';
+
+  const select = (shiftKey: boolean) => {
+    const { selectedIds, setSelection } = useBoardStore.getState();
+    // Shift+クリックで追加選択/選択解除、通常クリックで単独選択
+    setSelection(shiftKey ? toggleSelection(selectedIds, objectId) : [objectId]);
+  };
+
   return {
     draggable: selectable,
     onDragEnd: (event) => {
@@ -27,13 +34,13 @@ function useCommonNodeProps(objectId: string): CommonNodeProps {
     onClick: (event) => {
       if (selectable) {
         event.cancelBubble = true;
-        setSelection([objectId]);
+        select(event.evt.shiftKey);
       }
     },
     onTap: (event) => {
       if (selectable) {
         event.cancelBubble = true;
-        setSelection([objectId]);
+        select(false);
       }
     },
   };
