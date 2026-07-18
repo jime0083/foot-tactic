@@ -27,6 +27,7 @@ export const en: TranslationResource = {
     sportLabel: 'Sport',
     layoutLabel: 'View',
     aspectLabel: 'Aspect',
+    resetView: 'Reset view',
     sport: {
       soccer11: '11-a-side',
       soccer8: '8-a-side',

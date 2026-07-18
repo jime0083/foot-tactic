@@ -18,6 +18,7 @@ export const ja = {
     sportLabel: '競技',
     layoutLabel: '表示',
     aspectLabel: '比率',
+    resetView: '表示リセット',
     sport: {
       soccer11: '11人制',
       soccer8: '8人制',

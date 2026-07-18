@@ -16,6 +16,8 @@ export function FieldSettingsBar() {
   const setSportType = useBoardStore((state) => state.setSportType);
   const setLayoutId = useBoardStore((state) => state.setLayoutId);
   const setAspect = useBoardStore((state) => state.setAspect);
+  const resetView = useBoardStore((state) => state.resetView);
+  const zoomed = useBoardStore((state) => state.zoom > 1);
 
   return (
     <div className="board-toolbar">
@@ -56,6 +58,9 @@ export function FieldSettingsBar() {
         </select>
       </label>
       <FieldColorPanel />
+      <button type="button" onClick={resetView} disabled={!zoomed}>
+        {t('board.resetView')}
+      </button>
     </div>
   );
 }

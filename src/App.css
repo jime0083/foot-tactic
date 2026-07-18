@@ -68,6 +68,9 @@
 
 .board-canvas__stage {
   background: #1b5e20;
+  /* ピンチズーム等のポインタ操作を自前処理するためブラウザ既定動作を無効化 */
+  touch-action: none;
+  overflow: hidden;
 }
 
 .field-color-panel {
