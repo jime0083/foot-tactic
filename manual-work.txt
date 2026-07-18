@@ -58,7 +58,7 @@ Work2: AI文字起こし用APIキーの準備(動作検証用)
 ※OpenAI APIキーは用意できないため取得作業は行わない。
   OpenAI連携(Phase6.3)は実装のみ行い、動作検証・テストはGeminiで実施する(CLAUDE.md参照)
 
-[ ] Work2.1 Google Gemini APIキーの取得
+[x] Work2.1 Google Gemini APIキーの取得 (2026-07-19 完了・キーは.env.localに保管、コミット対象外)
     期限: Phase6.4 開始まで
     手順:
       1. https://aistudio.google.com/ でAPIキーを発行
