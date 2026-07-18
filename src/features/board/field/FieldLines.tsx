@@ -51,6 +51,27 @@ export function FieldLines({ spec, colors = DEFAULT_FIELD_COLORS }: FieldLinesPr
           strokeWidth={strokeWidth}
         />
       ))}
+      {shapes.penaltyAreaArcs.map((arc, index) => (
+        <Arc
+          key={`penalty-area-arc-${index}`}
+          x={arc.x}
+          y={arc.y}
+          innerRadius={arc.radius}
+          outerRadius={arc.radius}
+          rotation={arc.rotation}
+          angle={arc.angle}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ))}
+      {shapes.penaltyAreaLines.map((line, index) => (
+        <Line
+          key={`penalty-area-line-${index}`}
+          points={line.points}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ))}
       {shapes.goalAreas.map((rect, index) => (
         <Rect
           key={`goal-area-${index}`}

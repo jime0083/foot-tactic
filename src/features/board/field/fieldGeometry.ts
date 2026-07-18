@@ -35,7 +35,12 @@ export interface FieldShapes {
   halfwayLine: LineShape;
   centerCircle: CircleShape;
   centerSpot: CircleShape;
+  /** 矩形ペナルティエリア(quarterCircle形式の競技では空) */
   penaltyAreas: RectShape[];
+  /** 1/4円弧ペナルティエリア(フットサル)の弧 */
+  penaltyAreaArcs: ArcShape[];
+  /** 1/4円弧ペナルティエリア(フットサル)の接続ライン */
+  penaltyAreaLines: LineShape[];
   goalAreas: RectShape[];
   penaltySpots: CircleShape[];
   penaltyArcs: ArcShape[];
@@ -51,49 +56,28 @@ export function buildFieldShapes(spec: FieldSpec): FieldShapes {
   const { length, width } = spec;
   const centerY = width / 2;
 
-  // ペナルティアークの角度: ペナルティエリアのラインと交わる位置まで
-  const arcHalfAngle = toDegrees(
-    Math.acos((spec.penaltyAreaDepth - spec.penaltySpotDistance) / spec.centerCircleRadius),
-  );
-
   return {
     border: { x: 0, y: 0, width: length, height: width },
     halfwayLine: { points: [length / 2, 0, length / 2, width] },
     centerCircle: { x: length / 2, y: centerY, radius: spec.centerCircleRadius, filled: false },
     centerSpot: { x: length / 2, y: centerY, radius: spec.lineWidth * 2, filled: true },
-    penaltyAreas: [
-      areaRect(0, spec.penaltyAreaWidth, spec.penaltyAreaDepth, centerY, false),
-      areaRect(length, spec.penaltyAreaWidth, spec.penaltyAreaDepth, centerY, true),
-    ],
-    goalAreas: [
-      areaRect(0, spec.goalAreaWidth, spec.goalAreaDepth, centerY, false),
-      areaRect(length, spec.goalAreaWidth, spec.goalAreaDepth, centerY, true),
-    ],
-    penaltySpots: [
-      { x: spec.penaltySpotDistance, y: centerY, radius: spec.lineWidth * 2, filled: true },
-      {
-        x: length - spec.penaltySpotDistance,
-        y: centerY,
-        radius: spec.lineWidth * 2,
-        filled: true,
-      },
-    ],
-    penaltyArcs: [
-      {
-        x: spec.penaltySpotDistance,
-        y: centerY,
-        radius: spec.centerCircleRadius,
-        rotation: -arcHalfAngle,
-        angle: arcHalfAngle * 2,
-      },
-      {
-        x: length - spec.penaltySpotDistance,
-        y: centerY,
-        radius: spec.centerCircleRadius,
-        rotation: 180 - arcHalfAngle,
-        angle: arcHalfAngle * 2,
-      },
-    ],
+    penaltyAreas:
+      spec.penaltyAreaStyle === 'rect'
+        ? [
+            areaRect(0, spec.penaltyAreaWidth, spec.penaltyAreaDepth, centerY, false),
+            areaRect(length, spec.penaltyAreaWidth, spec.penaltyAreaDepth, centerY, true),
+          ]
+        : [],
+    penaltyAreaArcs: spec.penaltyAreaStyle === 'quarterCircle' ? buildFutsalPaArcs(spec) : [],
+    penaltyAreaLines: spec.penaltyAreaStyle === 'quarterCircle' ? buildFutsalPaLines(spec) : [],
+    goalAreas: spec.hasGoalArea
+      ? [
+          areaRect(0, spec.goalAreaWidth, spec.goalAreaDepth, centerY, false),
+          areaRect(length, spec.goalAreaWidth, spec.goalAreaDepth, centerY, true),
+        ]
+      : [],
+    penaltySpots: buildPenaltySpots(spec),
+    penaltyArcs: spec.hasPenaltyArc ? buildPenaltyArcs(spec) : [],
     cornerArcs: [
       { x: 0, y: 0, radius: spec.cornerArcRadius, rotation: 0, angle: 90 },
       { x: length, y: 0, radius: spec.cornerArcRadius, rotation: 90, angle: 90 },
@@ -117,6 +101,78 @@ export function buildFieldShapes(spec: FieldSpec): FieldShapes {
   };
 }
 
+function buildPenaltySpots(spec: FieldSpec): CircleShape[] {
+  const centerY = spec.width / 2;
+  const radius = spec.lineWidth * 2;
+  const spots: CircleShape[] = [
+    { x: spec.penaltySpotDistance, y: centerY, radius, filled: true },
+    { x: spec.length - spec.penaltySpotDistance, y: centerY, radius, filled: true },
+  ];
+  if (spec.secondPenaltySpotDistance !== undefined) {
+    spots.push(
+      { x: spec.secondPenaltySpotDistance, y: centerY, radius, filled: true },
+      { x: spec.length - spec.secondPenaltySpotDistance, y: centerY, radius, filled: true },
+    );
+  }
+  return spots;
+}
+
+/** ペナルティエリア外側の弧(ペナルティアーク) */
+function buildPenaltyArcs(spec: FieldSpec): ArcShape[] {
+  const centerY = spec.width / 2;
+  const arcHalfAngle = toDegrees(
+    Math.acos((spec.penaltyAreaDepth - spec.penaltySpotDistance) / spec.centerCircleRadius),
+  );
+  return [
+    {
+      x: spec.penaltySpotDistance,
+      y: centerY,
+      radius: spec.centerCircleRadius,
+      rotation: -arcHalfAngle,
+      angle: arcHalfAngle * 2,
+    },
+    {
+      x: spec.length - spec.penaltySpotDistance,
+      y: centerY,
+      radius: spec.centerCircleRadius,
+      rotation: 180 - arcHalfAngle,
+      angle: arcHalfAngle * 2,
+    },
+  ];
+}
+
+/** フットサルのペナルティエリア: 両ゴールポスト起点の1/4円弧 */
+function buildFutsalPaArcs(spec: FieldSpec): ArcShape[] {
+  const centerY = spec.width / 2;
+  const halfLine = spec.penaltyAreaWidth / 2;
+  const radius = spec.penaltyAreaDepth;
+  const topPostY = centerY - halfLine;
+  const bottomPostY = centerY + halfLine;
+  return [
+    // 左ゴール: 上ポスト起点(ゴールラインから上方向→フィールド内へ90度)
+    { x: 0, y: topPostY, radius, rotation: -90, angle: 90 },
+    // 左ゴール: 下ポスト起点
+    { x: 0, y: bottomPostY, radius, rotation: 0, angle: 90 },
+    // 右ゴール: 上ポスト起点
+    { x: spec.length, y: topPostY, radius, rotation: 180, angle: 90 },
+    // 右ゴール: 下ポスト起点
+    { x: spec.length, y: bottomPostY, radius, rotation: 90, angle: 90 },
+  ];
+}
+
+/** フットサルのペナルティエリア: 弧同士を結ぶゴールラインと平行なライン */
+function buildFutsalPaLines(spec: FieldSpec): LineShape[] {
+  const centerY = spec.width / 2;
+  const halfLine = spec.penaltyAreaWidth / 2;
+  const depth = spec.penaltyAreaDepth;
+  return [
+    { points: [depth, centerY - halfLine, depth, centerY + halfLine] },
+    {
+      points: [spec.length - depth, centerY - halfLine, spec.length - depth, centerY + halfLine],
+    },
+  ];
+}
+
 /** ゴールライン起点のエリア(ペナルティエリア/ゴールエリア)の矩形を求める */
 function areaRect(
   goalLineX: number,
@@ -135,32 +191,4 @@ function areaRect(
 
 function toDegrees(radians: number): number {
   return (radians * 180) / Math.PI;
-}
-
-export interface FieldTransform {
-  scale: number;
-  offsetX: number;
-  offsetY: number;
-}
-
-/**
- * コンテナサイズに合わせてフィールド(メートル座標)を収めるscale/offsetを計算する。
- * アスペクト比を維持し、中央寄せで配置する。
- */
-export function computeFieldTransform(
-  containerWidth: number,
-  containerHeight: number,
-  fieldLength: number,
-  fieldWidth: number,
-  paddingMeters: number,
-): FieldTransform {
-  const totalLength = fieldLength + paddingMeters * 2;
-  const totalWidth = fieldWidth + paddingMeters * 2;
-  if (containerWidth <= 0 || containerHeight <= 0) {
-    return { scale: 1, offsetX: paddingMeters, offsetY: paddingMeters };
-  }
-  const scale = Math.min(containerWidth / totalLength, containerHeight / totalWidth);
-  const offsetX = (containerWidth - fieldLength * scale) / 2;
-  const offsetY = (containerHeight - fieldWidth * scale) / 2;
-  return { scale, offsetX, offsetY };
 }

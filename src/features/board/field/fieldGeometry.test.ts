@@ -1,5 +1,5 @@
-import { buildFieldShapes, computeFieldTransform } from './fieldGeometry';
-import { FIELD_SPEC_SOCCER11 } from './fieldSpec';
+import { buildFieldShapes } from './fieldGeometry';
+import { FIELD_SPEC_FUTSAL, FIELD_SPEC_SOCCER8, FIELD_SPEC_SOCCER11 } from './fieldSpec';
 
 describe('buildFieldShapes(11人制)', () => {
   const shapes = buildFieldShapes(FIELD_SPEC_SOCCER11);
@@ -59,22 +59,42 @@ describe('buildFieldShapes(11人制)', () => {
   });
 });
 
-describe('computeFieldTransform', () => {
-  it('横長コンテナでは高さ基準でスケールし中央寄せする', () => {
-    // フィールド105x68+余白4m→113x76。コンテナ1130x380では高さが制約になる
-    const transform = computeFieldTransform(1130, 380, 105, 68, 4);
-    expect(transform.scale).toBeCloseTo(5);
-    expect(transform.offsetY).toBeCloseTo((380 - 68 * 5) / 2);
-    expect(transform.offsetX).toBeCloseTo((1130 - 105 * 5) / 2);
+describe('buildFieldShapes(8人制)', () => {
+  const shapes = buildFieldShapes(FIELD_SPEC_SOCCER8);
+
+  it('フィールド外周が68x50になる', () => {
+    expect(shapes.border).toEqual({ x: 0, y: 0, width: 68, height: 50 });
   });
 
-  it('縦長コンテナでは幅基準でスケールする', () => {
-    const transform = computeFieldTransform(565, 1000, 105, 68, 4);
-    expect(transform.scale).toBeCloseTo(5);
+  it('矩形ペナルティエリアとゴールエリアを持つ', () => {
+    expect(shapes.penaltyAreas).toHaveLength(2);
+    expect(shapes.goalAreas).toHaveLength(2);
+    expect(shapes.penaltyAreaArcs).toHaveLength(0);
   });
 
-  it('コンテナサイズが0の場合でも破綻しない', () => {
-    const transform = computeFieldTransform(0, 0, 105, 68, 4);
-    expect(transform.scale).toBe(1);
+  it('ペナルティアークは描画しない', () => {
+    expect(shapes.penaltyArcs).toHaveLength(0);
+  });
+});
+
+describe('buildFieldShapes(フットサル)', () => {
+  const shapes = buildFieldShapes(FIELD_SPEC_FUTSAL);
+
+  it('フィールド外周が40x20になる', () => {
+    expect(shapes.border).toEqual({ x: 0, y: 0, width: 40, height: 20 });
+  });
+
+  it('ペナルティエリアは1/4円弧4つ+接続ライン2本で構成される', () => {
+    expect(shapes.penaltyAreas).toHaveLength(0);
+    expect(shapes.penaltyAreaArcs).toHaveLength(4);
+    expect(shapes.penaltyAreaLines).toHaveLength(2);
+    // 左側の接続ラインはゴールラインから6mの位置
+    expect(shapes.penaltyAreaLines[0].points[0]).toBe(6);
+  });
+
+  it('ゴールエリアはなし、第2ペナルティマークを含む4つのスポットを持つ', () => {
+    expect(shapes.goalAreas).toHaveLength(0);
+    expect(shapes.penaltySpots).toHaveLength(4);
+    expect(shapes.penaltySpots.map((spot) => spot.x)).toEqual([6, 34, 10, 30]);
   });
 });

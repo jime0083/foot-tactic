@@ -1,43 +1,50 @@
 import { Layer, Stage } from 'react-konva';
 import { useElementSize } from '@/lib/useElementSize';
-import { computeFieldTransform } from './field/fieldGeometry';
+import { useBoardStore } from '@/stores/boardStore';
+import { fitAspectBox } from './aspect';
 import { FieldLines } from './field/FieldLines';
-import { FIELD_SPECS, type SportType } from './field/fieldSpec';
+import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
+import { FIELD_SPECS } from './field/fieldSpec';
 
 /** フィールド周囲の余白(メートル)。フィールド外への選手・ゴール配置に使う */
 const FIELD_PADDING_METERS = 4;
 
-interface BoardCanvasProps {
-  sportType?: SportType;
-}
-
-/** 戦術ボードの描画キャンバス。コンテナサイズに合わせてフィールドを描画する */
-export function BoardCanvas({ sportType = 'soccer11' }: BoardCanvasProps) {
+/** 戦術ボードの描画キャンバス。アスペクト比とレイアウトに応じてフィールドを描画する */
+export function BoardCanvas() {
   const { ref, size } = useElementSize<HTMLDivElement>();
+  const sportType = useBoardStore((state) => state.sportType);
+  const layoutId = useBoardStore((state) => state.layoutId);
+  const aspect = useBoardStore((state) => state.aspect);
+
   const spec = FIELD_SPECS[sportType];
-  const transform = computeFieldTransform(
-    size.width,
-    size.height,
-    spec.length,
-    spec.width,
+  const layout = FIELD_LAYOUTS[layoutId];
+  const box = fitAspectBox(size.width, size.height, aspect);
+  const transform = computeViewTransform(
+    box.width,
+    box.height,
+    layout.region(spec),
+    layout.rotated,
     FIELD_PADDING_METERS,
   );
 
   return (
     <div ref={ref} className="board-canvas" data-testid="board-canvas">
-      {size.width > 0 && size.height > 0 && (
-        <Stage
-          width={size.width}
-          height={size.height}
-          scaleX={transform.scale}
-          scaleY={transform.scale}
-          x={transform.offsetX}
-          y={transform.offsetY}
-        >
-          <Layer>
-            <FieldLines spec={spec} />
-          </Layer>
-        </Stage>
+      {box.width > 0 && box.height > 0 && (
+        <div className="board-canvas__stage" style={{ width: box.width, height: box.height }}>
+          <Stage
+            width={box.width}
+            height={box.height}
+            scaleX={transform.scale}
+            scaleY={transform.scale}
+            x={transform.x}
+            y={transform.y}
+            rotation={transform.rotation}
+          >
+            <Layer>
+              <FieldLines spec={spec} />
+            </Layer>
+          </Stage>
+        </div>
       )}
     </div>
   );

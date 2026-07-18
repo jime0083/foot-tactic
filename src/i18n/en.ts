@@ -1,8 +1,11 @@
 import type { ja } from './ja';
 
-type TranslationResource = {
-  [Namespace in keyof typeof ja]: { [Key in keyof (typeof ja)[Namespace]]: string };
+/** jaと同じネスト構造を強制する型(末端はstring) */
+type DeepTranslation<T> = {
+  [Key in keyof T]: T[Key] extends string ? string : DeepTranslation<T[Key]>;
 };
+
+type TranslationResource = DeepTranslation<typeof ja>;
 
 export const en: TranslationResource = {
   common: {
@@ -21,6 +24,24 @@ export const en: TranslationResource = {
   },
   board: {
     title: 'Tactics Board',
+    sportLabel: 'Sport',
+    layoutLabel: 'View',
+    aspectLabel: 'Aspect',
+    sport: {
+      soccer11: '11-a-side',
+      soccer8: '8-a-side',
+      futsal: 'Futsal',
+    },
+    layout: {
+      'full-landscape': 'Full pitch (landscape)',
+      'full-portrait': 'Full pitch (portrait)',
+      'half-home-landscape': 'Own half (landscape)',
+      'half-away-landscape': 'Opponent half (landscape)',
+      'half-home-portrait': 'Own half (portrait)',
+      'half-away-portrait': 'Opponent half (portrait)',
+      'penalty-home-portrait': 'Own goal area (portrait)',
+      'penalty-away-portrait': 'Opponent goal area (portrait)',
+    },
   },
   settings: {
     title: 'Settings',

@@ -15,6 +15,24 @@ export const ja = {
   },
   board: {
     title: '戦術ボード',
+    sportLabel: '競技',
+    layoutLabel: '表示',
+    aspectLabel: '比率',
+    sport: {
+      soccer11: '11人制',
+      soccer8: '8人制',
+      futsal: 'フットサル',
+    },
+    layout: {
+      'full-landscape': '全景(横)',
+      'full-portrait': '全景(縦)',
+      'half-home-landscape': '自陣ハーフ(横)',
+      'half-away-landscape': '敵陣ハーフ(横)',
+      'half-home-portrait': '自陣ハーフ(縦)',
+      'half-away-portrait': '敵陣ハーフ(縦)',
+      'penalty-home-portrait': '自陣ゴール前(縦)',
+      'penalty-away-portrait': '敵陣ゴール前(縦)',
+    },
   },
   settings: {
     title: '設定',
