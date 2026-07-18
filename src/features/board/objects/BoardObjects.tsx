@@ -1,26 +1,57 @@
+import type Konva from 'konva';
 import { Circle, Group, Line, Rect, Text } from 'react-konva';
 import { useBoardStore } from '@/stores/boardStore';
-import { PLAYER_BODY_RADIUS, withOpacity } from './objectStyles';
-import type { BoardObject } from './objectTypes';
+import { withOpacity } from './objectStyles';
+import { angleToPoint } from './playerActions';
+import { PlayerShape } from './PlayerShape';
+import type { BoardObject, PlayerObject } from './objectTypes';
 
-function ObjectShape({ object }: { object: BoardObject }) {
+/** 各オブジェクトのKonvaノードに共通で渡す操作プロパティ */
+interface CommonNodeProps {
+  draggable: boolean;
+  onDragEnd: (event: Konva.KonvaEventObject<DragEvent>) => void;
+  onClick: (event: Konva.KonvaEventObject<MouseEvent>) => void;
+  onTap: (event: Konva.KonvaEventObject<TouchEvent>) => void;
+}
+
+function useCommonNodeProps(objectId: string): CommonNodeProps {
+  const tool = useBoardStore((state) => state.tool);
+  const updateObject = useBoardStore((state) => state.updateObject);
+  const setSelection = useBoardStore((state) => state.setSelection);
+  const selectable = tool === 'select';
+  return {
+    draggable: selectable,
+    onDragEnd: (event) => {
+      updateObject(objectId, { x: event.target.x(), y: event.target.y() });
+    },
+    onClick: (event) => {
+      if (selectable) {
+        event.cancelBubble = true;
+        setSelection([objectId]);
+      }
+    },
+    onTap: (event) => {
+      if (selectable) {
+        event.cancelBubble = true;
+        setSelection([objectId]);
+      }
+    },
+  };
+}
+
+function ObjectShape({ object, selected }: { object: BoardObject; selected: boolean }) {
+  const playerDisplay = useBoardStore((state) => state.playerDisplay);
+  const common = useCommonNodeProps(object.id);
+
   switch (object.type) {
     case 'player':
       return (
-        <Group x={object.x} y={object.y} rotation={object.rotation}>
-          <Circle radius={PLAYER_BODY_RADIUS} fill={object.color} />
-          {object.number !== '' && (
-            <Text
-              text={object.number}
-              fontSize={PLAYER_BODY_RADIUS * 1.1}
-              fill={object.numberColor}
-              align="center"
-              verticalAlign="middle"
-              offsetX={PLAYER_BODY_RADIUS}
-              offsetY={PLAYER_BODY_RADIUS * 0.55}
-              width={PLAYER_BODY_RADIUS * 2}
-            />
-          )}
+        <Group x={object.x} y={object.y} {...common}>
+          <PlayerShape
+            player={{ ...object, x: 0, y: 0 }}
+            display={playerDisplay}
+            selected={selected}
+          />
         </Group>
       );
     case 'ball':
@@ -30,8 +61,9 @@ function ObjectShape({ object }: { object: BoardObject }) {
           y={object.y}
           radius={0.5}
           fill={object.color}
-          stroke="#000000"
-          strokeWidth={0.08}
+          stroke={selected ? '#00e5ff' : '#000000'}
+          strokeWidth={selected ? 0.15 : 0.08}
+          {...common}
         />
       );
     case 'marker':
@@ -41,8 +73,9 @@ function ObjectShape({ object }: { object: BoardObject }) {
           y={object.y}
           radius={object.size * 0.6}
           fill={object.color}
-          stroke="#00000055"
-          strokeWidth={0.06}
+          stroke={selected ? '#00e5ff' : '#00000055'}
+          strokeWidth={selected ? 0.15 : 0.06}
+          {...common}
         />
       );
     case 'line':
@@ -52,10 +85,12 @@ function ObjectShape({ object }: { object: BoardObject }) {
           y={object.y}
           rotation={object.rotation}
           points={object.points}
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           dash={object.dashed ? [1, 0.6] : undefined}
           lineCap="round"
+          hitStrokeWidth={1.5}
+          {...common}
         />
       );
     case 'circle':
@@ -64,9 +99,10 @@ function ObjectShape({ object }: { object: BoardObject }) {
           x={object.x}
           y={object.y}
           radius={object.radius}
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           fill={withOpacity(object.fill, object.fillOpacity)}
+          {...common}
         />
       );
     case 'rect':
@@ -77,9 +113,10 @@ function ObjectShape({ object }: { object: BoardObject }) {
           rotation={object.rotation}
           width={object.width}
           height={object.height}
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           fill={withOpacity(object.fill, object.fillOpacity)}
+          {...common}
         />
       );
     case 'polygon':
@@ -90,9 +127,10 @@ function ObjectShape({ object }: { object: BoardObject }) {
           rotation={object.rotation}
           points={object.points}
           closed
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           fill={withOpacity(object.fill, object.fillOpacity)}
+          {...common}
         />
       );
     case 'polyline':
@@ -102,11 +140,13 @@ function ObjectShape({ object }: { object: BoardObject }) {
           y={object.y}
           rotation={object.rotation}
           points={object.points}
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           dash={object.dashed ? [1, 0.6] : undefined}
           lineCap="round"
           lineJoin="round"
+          hitStrokeWidth={1.5}
+          {...common}
         />
       );
     case 'text':
@@ -117,7 +157,8 @@ function ObjectShape({ object }: { object: BoardObject }) {
           rotation={object.rotation}
           text={object.text}
           fontSize={object.fontSize}
-          fill={object.color}
+          fill={selected ? '#00e5ff' : object.color}
+          {...common}
         />
       );
     case 'freehand':
@@ -126,24 +167,68 @@ function ObjectShape({ object }: { object: BoardObject }) {
           x={object.x}
           y={object.y}
           points={object.points}
-          stroke={object.stroke}
+          stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           lineCap="round"
           lineJoin="round"
           tension={0.4}
+          hitStrokeWidth={1.5}
+          {...common}
         />
       );
   }
 }
 
+/** 選択中プレイヤーの向きを変える回転ハンドル */
+function RotationHandle({ player }: { player: PlayerObject }) {
+  const bodyRadius = useBoardStore((state) => state.playerDisplay.bodyRadius);
+  const updateObject = useBoardStore((state) => state.updateObject);
+  const distance = bodyRadius + 2;
+  const angleRad = (player.rotation * Math.PI) / 180;
+
+  return (
+    <Circle
+      x={player.x + Math.cos(angleRad) * distance}
+      y={player.y + Math.sin(angleRad) * distance}
+      radius={0.55}
+      fill="#00e5ff"
+      stroke="#ffffff"
+      strokeWidth={0.1}
+      draggable
+      onDragMove={(event) => {
+        const rotation = angleToPoint(player.x, player.y, event.target.x(), event.target.y());
+        updateObject(player.id, { rotation });
+        const rad = (rotation * Math.PI) / 180;
+        event.target.position({
+          x: player.x + Math.cos(rad) * distance,
+          y: player.y + Math.sin(rad) * distance,
+        });
+      }}
+    />
+  );
+}
+
 /** 現在のシーンの全オブジェクトを描画するグループ */
 export function BoardObjects() {
   const objects = useBoardStore((state) => state.objects);
+  const selectedIds = useBoardStore((state) => state.selectedIds);
+
+  const selectedPlayer =
+    selectedIds.length === 1
+      ? objects.find(
+          (object): object is PlayerObject =>
+            object.id === selectedIds[0] &&
+            object.type === 'player' &&
+            (object.showArrow || object.showArm),
+        )
+      : undefined;
+
   return (
     <Group>
       {objects.map((object) => (
-        <ObjectShape key={object.id} object={object} />
+        <ObjectShape key={object.id} object={object} selected={selectedIds.includes(object.id)} />
       ))}
+      {selectedPlayer && <RotationHandle player={selectedPlayer} />}
     </Group>
   );
 }

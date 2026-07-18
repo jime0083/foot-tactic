@@ -132,8 +132,13 @@ export function BoardCanvas() {
 
   /** 配置ツール選択中のクリックでオブジェクトを追加する */
   const handleStageClick = (event: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    const { tool, continuousPlacement, addObject, setTool } = useBoardStore.getState();
+    const { tool, continuousPlacement, addObject, setTool, clearSelection } =
+      useBoardStore.getState();
     if (tool === 'select') {
+      // 何もない場所のクリックで選択解除
+      if (event.target === event.target.getStage()) {
+        clearSelection();
+      }
       return;
     }
     const pointer = event.target.getStage()?.getPointerPosition();

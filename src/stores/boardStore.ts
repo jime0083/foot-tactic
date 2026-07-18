@@ -23,6 +23,10 @@ interface BoardState {
   continuousPlacement: boolean;
   /** 現在のシーンのオブジェクト(配列順=重なり順) */
   objects: BoardObject[];
+  /** 選択中オブジェクトのID */
+  selectedIds: string[];
+  /** 全プレイヤー共通の表示設定 */
+  playerDisplay: PlayerDisplaySettings;
   setSportType: (sportType: SportType) => void;
   setLayoutId: (layoutId: FieldLayoutId) => void;
   setAspect: (aspect: BoardAspect) => void;
@@ -35,7 +39,23 @@ interface BoardState {
   updateObject: (id: string, patch: Partial<BoardObject>) => void;
   removeObjects: (ids: string[]) => void;
   setObjects: (objects: BoardObject[]) => void;
+  setSelection: (ids: string[]) => void;
+  clearSelection: () => void;
+  setPlayerDisplay: (settings: Partial<PlayerDisplaySettings>) => void;
 }
+
+/** 全プレイヤー共通の表示設定 */
+export interface PlayerDisplaySettings {
+  /** 体の半径(メートル) */
+  bodyRadius: number;
+  /** 選手名のフォントサイズ(メートル) */
+  nameFontSize: number;
+}
+
+export const DEFAULT_PLAYER_DISPLAY: PlayerDisplaySettings = {
+  bodyRadius: 1.2,
+  nameFontSize: 1.6,
+};
 
 export const useBoardStore = create<BoardState>((set) => ({
   sportType: 'soccer11',
@@ -47,6 +67,8 @@ export const useBoardStore = create<BoardState>((set) => ({
   tool: 'select',
   continuousPlacement: false,
   objects: [],
+  selectedIds: [],
+  playerDisplay: DEFAULT_PLAYER_DISPLAY,
   // 表示対象が変わるためズーム・パンはリセットする
   setSportType: (sportType) => set({ sportType, zoom: 1, pan: ZERO_PAN }),
   setLayoutId: (layoutId) => set({ layoutId, zoom: 1, pan: ZERO_PAN }),
@@ -68,6 +90,11 @@ export const useBoardStore = create<BoardState>((set) => ({
   removeObjects: (ids) =>
     set((state) => ({
       objects: state.objects.filter((object) => !ids.includes(object.id)),
+      selectedIds: state.selectedIds.filter((id) => !ids.includes(id)),
     })),
-  setObjects: (objects) => set({ objects }),
+  setObjects: (objects) => set({ objects, selectedIds: [] }),
+  setSelection: (ids) => set({ selectedIds: ids }),
+  clearSelection: () => set({ selectedIds: [] }),
+  setPlayerDisplay: (settings) =>
+    set((state) => ({ playerDisplay: { ...state.playerDisplay, ...settings } })),
 }));
