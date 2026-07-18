@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '@/features/auth/useAuth';
 import { SceneThumbnail } from '@/features/board/scenes/SceneThumbnail';
 import type { SportType } from '@/features/board/field/fieldSpec';
+import { collectTags, filterProjects } from './projectFilter';
 import {
   createProject,
   deleteProject,
   duplicateProject,
   listProjects,
+  updateProjectMeta,
   type ProjectListItem,
 } from './projectService';
 
@@ -23,6 +25,8 @@ export function ProjectListPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newSportType, setNewSportType] = useState<SportType>('soccer11');
   const [busy, setBusy] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
 
   const [reloadKey, setReloadKey] = useState(0);
   const refresh = useCallback(() => setReloadKey((key) => key + 1), []);
@@ -80,6 +84,35 @@ export function ProjectListPage() {
     }
   };
 
+  const handleAddTag = async (item: ProjectListItem, rawTag: string) => {
+    const tag = rawTag.trim();
+    if (!user || tag === '' || item.tags.includes(tag)) {
+      return;
+    }
+    try {
+      await updateProjectMeta(user.uid, item.id, { tags: [...item.tags, tag] });
+      refresh();
+    } catch (error) {
+      console.error('タグの更新に失敗しました', error);
+      setErrorMessage(t('projects.tagFailed'));
+    }
+  };
+
+  const handleRemoveTag = async (item: ProjectListItem, tag: string) => {
+    if (!user) {
+      return;
+    }
+    try {
+      await updateProjectMeta(user.uid, item.id, {
+        tags: item.tags.filter((existing) => existing !== tag),
+      });
+      refresh();
+    } catch (error) {
+      console.error('タグの更新に失敗しました', error);
+      setErrorMessage(t('projects.tagFailed'));
+    }
+  };
+
   const handleDelete = async (projectId: string) => {
     if (!user || !window.confirm(t('projects.confirmDelete'))) {
       return;
@@ -120,6 +153,27 @@ export function ProjectListPage() {
           {t('projects.create')}
         </button>
       </div>
+      <div className="project-list__filter">
+        <input
+          type="search"
+          value={searchQuery}
+          placeholder={t('projects.search')}
+          aria-label={t('projects.search')}
+          onChange={(event) => setSearchQuery(event.target.value)}
+        />
+        <select
+          aria-label={t('projects.tagFilter')}
+          value={tagFilter}
+          onChange={(event) => setTagFilter(event.target.value)}
+        >
+          <option value="">{t('projects.allTags')}</option>
+          {collectTags(items ?? []).map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
+      </div>
       {errorMessage && <p role="alert">{errorMessage}</p>}
       {items === null ? (
         <p role="status">{t('common.loading')}</p>
@@ -127,7 +181,7 @@ export function ProjectListPage() {
         <p>{t('projects.empty')}</p>
       ) : (
         <ul className="project-list__grid">
-          {items.map((item) => (
+          {filterProjects(items, searchQuery, tagFilter).map((item) => (
             <li key={item.id} className="project-card">
               <button
                 type="button"
@@ -142,6 +196,36 @@ export function ProjectListPage() {
                     ` ・ ${new Date(item.updatedAt).toLocaleString(i18n.language)}`}
                 </span>
               </button>
+              <div className="project-card__tags">
+                {item.tags.map((tag) => (
+                  <span key={tag} className="project-card__tag">
+                    {tag}
+                    <button
+                      type="button"
+                      aria-label={`${t('projects.removeTag')}: ${tag}`}
+                      onClick={() => void handleRemoveTag(item, tag)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  maxLength={20}
+                  className="project-card__tag-input"
+                  placeholder={t('projects.addTag')}
+                  aria-label={`${t('projects.addTag')}: ${item.title}`}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      const input = event.currentTarget;
+                      void handleAddTag(item, input.value).then(() => {
+                        input.value = '';
+                      });
+                    }
+                  }}
+                />
+              </div>
               <div className="project-card__actions">
                 <button type="button" onClick={() => void handleDuplicate(item.id)}>
                   {t('projects.duplicate')}

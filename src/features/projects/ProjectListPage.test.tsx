@@ -4,7 +4,13 @@ import { MemoryRouter } from 'react-router';
 import { vi, type Mock } from 'vitest';
 import type { User } from 'firebase/auth';
 import { ProjectListPage } from './ProjectListPage';
-import { createProject, deleteProject, duplicateProject, listProjects } from './projectService';
+import {
+  createProject,
+  deleteProject,
+  duplicateProject,
+  listProjects,
+  updateProjectMeta,
+} from './projectService';
 import { AuthContext } from '@/features/auth/auth-context';
 
 vi.mock('./projectService', () => ({
@@ -12,6 +18,7 @@ vi.mock('./projectService', () => ({
   createProject: vi.fn(),
   duplicateProject: vi.fn(),
   deleteProject: vi.fn(),
+  updateProjectMeta: vi.fn(),
 }));
 
 const mockUser = { uid: 'u1' } as User;
@@ -106,6 +113,47 @@ describe('ProjectListPage', () => {
 
     expect(deleteProject).toHaveBeenCalledWith('u1', 'p1');
     confirmSpy.mockRestore();
+  });
+
+  it('タイトル検索で一覧が絞り込まれる', async () => {
+    renderPage();
+    await screen.findByText('vs FC東京');
+
+    await userEvent.type(screen.getByLabelText('タイトルで検索'), 'フットサル');
+
+    expect(screen.queryByText('vs FC東京')).not.toBeInTheDocument();
+    expect(screen.getByText('フットサル練習')).toBeInTheDocument();
+  });
+
+  it('タグで絞り込める', async () => {
+    renderPage();
+    await screen.findByText('vs FC東京');
+
+    await userEvent.selectOptions(screen.getByLabelText('タグで絞り込み'), 'リーグ戦');
+
+    expect(screen.getByText('vs FC東京')).toBeInTheDocument();
+    expect(screen.queryByText('フットサル練習')).not.toBeInTheDocument();
+  });
+
+  it('タグを追加できる', async () => {
+    (updateProjectMeta as Mock).mockResolvedValue(undefined);
+    renderPage();
+    await screen.findByText('フットサル練習');
+
+    const input = screen.getByLabelText('タグを追加: フットサル練習');
+    await userEvent.type(input, '朝練{enter}');
+
+    expect(updateProjectMeta).toHaveBeenCalledWith('u1', 'p2', { tags: ['朝練'] });
+  });
+
+  it('タグを削除できる', async () => {
+    (updateProjectMeta as Mock).mockResolvedValue(undefined);
+    renderPage();
+    await screen.findByText('vs FC東京');
+
+    await userEvent.click(screen.getByRole('button', { name: 'タグを削除: リーグ戦' }));
+
+    expect(updateProjectMeta).toHaveBeenCalledWith('u1', 'p1', { tags: [] });
   });
 
   it('確認をキャンセルすると削除されない', async () => {
