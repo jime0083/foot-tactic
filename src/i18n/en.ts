@@ -70,6 +70,9 @@ export const en: TranslationResource = {
       system: 'System',
       centered: 'From center',
       apply: 'Place players',
+      roster: 'Player list',
+      rosterPlaceholder:
+        'One player per line, e.g. "10,Yamada" (CSV paste supported; position shown if number omitted)',
     },
     marker: {
       size: 'Size',

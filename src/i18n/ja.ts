@@ -61,6 +61,8 @@ export const ja = {
       system: 'システム',
       centered: '中央基準',
       apply: '一括配置',
+      roster: '選手リスト',
+      rosterPlaceholder: '1行に1人。例: 10,山田(CSVペースト可。背番号省略時はポジション名を表示)',
     },
     marker: {
       size: 'サイズ',

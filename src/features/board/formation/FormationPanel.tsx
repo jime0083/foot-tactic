@@ -5,6 +5,7 @@ import { FIELD_SPECS } from '../field/fieldSpec';
 import type { TeamSide } from '../objects/objectTypes';
 import { buildFormationPlayers, replaceTeamPlayers } from './formationPlacement';
 import { FORMATIONS } from './formations';
+import { parseRoster } from './parseRoster';
 
 /** フォーメーション一括配置パネル */
 export function FormationPanel() {
@@ -12,6 +13,7 @@ export function FormationPanel() {
   const [open, setOpen] = useState(false);
   const [team, setTeam] = useState<TeamSide>('home');
   const [centered, setCentered] = useState(false);
+  const [rosterText, setRosterText] = useState('');
   const sportType = useBoardStore((state) => state.sportType);
   const formations = FORMATIONS[sportType];
   const [formationId, setFormationId] = useState(formations[0].id);
@@ -30,7 +32,10 @@ export function FormationPanel() {
     if (!formation) {
       return;
     }
-    const players = buildFormationPlayers(spec, formation, team, { centered });
+    const players = buildFormationPlayers(spec, formation, team, {
+      centered,
+      roster: parseRoster(rosterText),
+    });
     store.setObjects(replaceTeamPlayers(store.objects, team, players));
   };
 
@@ -65,6 +70,15 @@ export function FormationPanel() {
               onChange={(event) => setCentered(event.target.checked)}
             />
             {t('board.formation.centered')}
+          </label>
+          <label className="formation-panel__roster">
+            {t('board.formation.roster')}
+            <textarea
+              rows={4}
+              value={rosterText}
+              placeholder={t('board.formation.rosterPlaceholder')}
+              onChange={(event) => setRosterText(event.target.value)}
+            />
           </label>
           <button type="button" onClick={handleApply}>
             {t('board.formation.apply')}

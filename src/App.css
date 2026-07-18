@@ -138,6 +138,15 @@
   white-space: nowrap;
 }
 
+.formation-panel__roster {
+  align-items: flex-start;
+}
+
+.formation-panel__roster textarea {
+  min-width: 18rem;
+  font-size: 0.8rem;
+}
+
 .field-color-panel {
   position: relative;
 }
