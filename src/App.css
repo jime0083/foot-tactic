@@ -4,3 +4,33 @@
   padding: 2rem;
   text-align: center;
 }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.app-header__brand {
+  font-weight: 700;
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.app-header__nav {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.app-header__nav a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.app-header__nav a[aria-current='page'] {
+  color: var(--accent);
+  font-weight: 600;
+}

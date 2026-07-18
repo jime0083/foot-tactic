@@ -3,11 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { vi, type Mock } from 'vitest';
 import type { User } from 'firebase/auth';
 import { SettingsPage } from './SettingsPage';
-import { signOutUser } from '@/features/auth/authService';
 import { updateUserLanguage } from '@/features/auth/userDocument';
 import { AuthContext } from '@/features/auth/auth-context';
 
-vi.mock('@/features/auth/authService', () => ({ signOutUser: vi.fn() }));
 vi.mock('@/features/auth/userDocument', () => ({ updateUserLanguage: vi.fn() }));
 
 const mockUser = { uid: 'test-uid' } as User;
@@ -25,25 +23,10 @@ describe('SettingsPage', () => {
     vi.clearAllMocks();
   });
 
-  it('ログアウトボタンを押すとログアウト処理が実行される', async () => {
-    (signOutUser as Mock).mockResolvedValue(undefined);
+  it('言語切替とアカウント削除ボタンが表示される', () => {
     renderSettingsPage();
-
-    await userEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
-
-    expect(signOutUser).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
-
-  it('ログアウト失敗時はエラーメッセージが表示される', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (signOutUser as Mock).mockRejectedValue(new Error('network-error'));
-    renderSettingsPage();
-
-    await userEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('ログアウトに失敗しました');
-    consoleError.mockRestore();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'アカウント削除' })).toBeDisabled();
   });
 
   it('言語を英語に切り替えるとUIが英語になりFirestoreに保存される', async () => {

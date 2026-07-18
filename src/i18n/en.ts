@@ -27,5 +27,6 @@ export const en: TranslationResource = {
     language: 'Language',
     logout: 'Sign out',
     logoutFailed: 'Sign-out failed. Please try again.',
+    deleteAccount: 'Delete account',
   },
 };

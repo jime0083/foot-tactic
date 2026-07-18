@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router';
+import { AppLayout } from '@/components/AppLayout';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { BoardPage } from '@/features/board/BoardPage';
@@ -10,9 +11,11 @@ export function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<RequireAuth />}>
-        <Route path="/projects" element={<ProjectListPage />} />
-        <Route path="/board/:projectId" element={<BoardPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route element={<AppLayout />}>
+          <Route path="/projects" element={<ProjectListPage />} />
+          <Route path="/board/:projectId" element={<BoardPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/projects" replace />} />
     </Routes>

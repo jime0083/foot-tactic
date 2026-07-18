@@ -21,5 +21,6 @@ export const ja = {
     language: '言語',
     logout: 'ログアウト',
     logoutFailed: 'ログアウトに失敗しました。再度お試しください。',
+    deleteAccount: 'アカウント削除',
   },
 } as const;
