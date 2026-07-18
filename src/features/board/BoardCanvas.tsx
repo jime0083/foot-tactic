@@ -1,12 +1,21 @@
 import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import type Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
 import { useElementSize } from '@/lib/useElementSize';
 import { useBoardStore } from '@/stores/boardStore';
 import { fitAspectBox } from './aspect';
-import { composeStageTransform, wheelZoomFactor, zoomAtPoint, type Point } from './boardView';
+import {
+  composeStageTransform,
+  screenToField,
+  wheelZoomFactor,
+  zoomAtPoint,
+  type Point,
+} from './boardView';
 import { FieldLines } from './field/FieldLines';
 import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
 import { FIELD_SPECS } from './field/fieldSpec';
+import { BoardObjects } from './objects/BoardObjects';
+import { createObjectAt } from './objects/createObject';
 
 /** フィールド周囲の余白(メートル)。フィールド外への選手・ゴール配置に使う */
 const FIELD_PADDING_METERS = 4;
@@ -121,6 +130,23 @@ export function BoardCanvas() {
     }
   };
 
+  /** 配置ツール選択中のクリックでオブジェクトを追加する */
+  const handleStageClick = (event: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    const { tool, continuousPlacement, addObject, setTool } = useBoardStore.getState();
+    if (tool === 'select') {
+      return;
+    }
+    const pointer = event.target.getStage()?.getPointerPosition();
+    if (!pointer) {
+      return;
+    }
+    const fieldPoint = screenToField(stageTransform, pointer);
+    addObject(createObjectAt(tool, fieldPoint.x, fieldPoint.y));
+    if (!continuousPlacement) {
+      setTool('select');
+    }
+  };
+
   return (
     <div ref={ref} className="board-canvas" data-testid="board-canvas">
       {box.width > 0 && box.height > 0 && (
@@ -141,9 +167,12 @@ export function BoardCanvas() {
             x={stageTransform.x}
             y={stageTransform.y}
             rotation={stageTransform.rotation}
+            onClick={handleStageClick}
+            onTap={handleStageClick}
           >
             <Layer>
               <FieldLines spec={spec} colors={fieldColors} />
+              <BoardObjects />
             </Layer>
           </Stage>
         </div>

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { BoardCanvas } from './BoardCanvas';
 import { FieldSettingsBar } from './FieldSettingsBar';
+import { ToolMenu } from './ToolMenu';
 
 export function BoardPage() {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ export function BoardPage() {
     <main className="board-page" data-project-id={projectId}>
       <h1 className="visually-hidden">{t('board.title')}</h1>
       <FieldSettingsBar />
+      <ToolMenu />
       <BoardCanvas />
       {/* ツールメニューはPhase2.5、メモエリアはPhase5.1で実装 */}
     </main>

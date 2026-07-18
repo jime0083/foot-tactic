@@ -71,3 +71,18 @@ export function zoomAtPoint(
 export function wheelZoomFactor(deltaY: number): number {
   return Math.exp(-deltaY * 0.002);
 }
+
+/** 画面座標(Stage内ピクセル)をフィールド座標(メートル)へ変換する */
+export function screenToField(transform: ViewTransform, point: Point): Point {
+  if (transform.rotation === 0) {
+    return {
+      x: (point.x - transform.x) / transform.scale,
+      y: (point.y - transform.y) / transform.scale,
+    };
+  }
+  // rotation=-90: 画面(x,y) = (t.x + fy*s, t.y - fx*s) の逆変換
+  return {
+    x: (transform.y - point.y) / transform.scale,
+    y: (point.x - transform.x) / transform.scale,
+  };
+}

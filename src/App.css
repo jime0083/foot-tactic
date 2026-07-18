@@ -73,6 +73,31 @@
   overflow: hidden;
 }
 
+.tool-menu {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  padding: 0.3rem 1rem;
+  flex-wrap: wrap;
+}
+
+.tool-menu__item {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.tool-menu__item--active {
+  outline: 2px solid var(--accent);
+}
+
+.tool-menu__continuous {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
 .field-color-panel {
   position: relative;
 }

@@ -1,6 +1,7 @@
 import {
   clampZoom,
   composeStageTransform,
+  screenToField,
   wheelZoomFactor,
   zoomAtPoint,
   MAX_ZOOM,
@@ -70,5 +71,22 @@ describe('wheelZoomFactor', () => {
     expect(wheelZoomFactor(-100)).toBeGreaterThan(1);
     expect(wheelZoomFactor(100)).toBeLessThan(1);
     expect(wheelZoomFactor(0)).toBe(1);
+  });
+});
+
+describe('screenToField', () => {
+  it('横向き変換の逆変換になっている', () => {
+    const transform: ViewTransform = { scale: 10, x: 100, y: 50, rotation: 0 };
+    const field = screenToField(transform, { x: 100 + 52.5 * 10, y: 50 + 34 * 10 });
+    expect(field.x).toBeCloseTo(52.5);
+    expect(field.y).toBeCloseTo(34);
+  });
+
+  it('縦向き(-90度回転)の逆変換になっている', () => {
+    const transform: ViewTransform = { scale: 10, x: 100, y: 1200, rotation: -90 };
+    // フィールド(fx,fy) → 画面(x + fy*s, y - fx*s)
+    const field = screenToField(transform, { x: 100 + 34 * 10, y: 1200 - 52.5 * 10 });
+    expect(field.x).toBeCloseTo(52.5);
+    expect(field.y).toBeCloseTo(34);
   });
 });
