@@ -1,6 +1,6 @@
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type Konva from 'konva';
-import { Layer, Stage } from 'react-konva';
+import { Circle, Layer, Line, Rect, Stage } from 'react-konva';
 import { useElementSize } from '@/lib/useElementSize';
 import { useBoardStore } from '@/stores/boardStore';
 import { fitAspectBox } from './aspect';
@@ -16,16 +16,66 @@ import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
 import { FIELD_SPECS } from './field/fieldSpec';
 import { BoardObjects } from './objects/BoardObjects';
 import { createObjectAt } from './objects/createObject';
+import {
+  buildDragShape,
+  buildVertexShape,
+  type DragShapeType,
+  type VertexShapeType,
+} from './objects/shapeDrafting';
 
 /** フィールド周囲の余白(メートル)。フィールド外への選手・ゴール配置に使う */
 const FIELD_PADDING_METERS = 4;
 
-/** 戦術ボードの描画キャンバス。ズーム・パン・アスペクト比・レイアウトに対応する */
+const DRAG_SHAPE_TYPES: DragShapeType[] = ['line', 'circle', 'rect'];
+const VERTEX_SHAPE_TYPES: VertexShapeType[] = ['polygon', 'polyline'];
+
+/** 作成途中の図形(ドラッグ中/頂点追加中) */
+type Draft =
+  | { kind: 'drag'; type: DragShapeType; start: Point; current: Point }
+  | { kind: 'vertices'; type: VertexShapeType; vertices: Point[]; current: Point | null };
+
+/** 作成途中の図形のプレビュー描画 */
+function DraftPreview({ draft }: { draft: Draft }) {
+  const previewProps = { stroke: '#ffffffaa', strokeWidth: 0.25, dash: [0.8, 0.5] as number[] };
+  if (draft.kind === 'drag') {
+    const { start, current } = draft;
+    if (draft.type === 'circle') {
+      return (
+        <Circle
+          x={start.x}
+          y={start.y}
+          radius={Math.hypot(current.x - start.x, current.y - start.y)}
+          {...previewProps}
+        />
+      );
+    }
+    if (draft.type === 'rect') {
+      return (
+        <Rect
+          x={Math.min(start.x, current.x)}
+          y={Math.min(start.y, current.y)}
+          width={Math.abs(current.x - start.x)}
+          height={Math.abs(current.y - start.y)}
+          {...previewProps}
+        />
+      );
+    }
+    return <Line points={[start.x, start.y, current.x, current.y]} {...previewProps} />;
+  }
+  const points = draft.vertices.flatMap((vertex) => [vertex.x, vertex.y]);
+  if (draft.current) {
+    points.push(draft.current.x, draft.current.y);
+  }
+  return <Line points={points} {...previewProps} />;
+}
+
+/** 戦術ボードの描画キャンバス。配置・ズーム・パン・レイアウトを統合する */
 export function BoardCanvas() {
   const { ref, size } = useElementSize<HTMLDivElement>();
   const stageWrapRef = useRef<HTMLDivElement | null>(null);
   const activePointers = useRef(new Map<number, Point>());
   const pinchState = useRef<{ startDistance: number; startZoom: number } | null>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
 
   const sportType = useBoardStore((state) => state.sportType);
   const layoutId = useBoardStore((state) => state.layoutId);
@@ -33,6 +83,7 @@ export function BoardCanvas() {
   const fieldColors = useBoardStore((state) => state.fieldColors);
   const zoom = useBoardStore((state) => state.zoom);
   const pan = useBoardStore((state) => state.pan);
+  const tool = useBoardStore((state) => state.tool);
 
   const spec = FIELD_SPECS[sportType];
   const layout = FIELD_LAYOUTS[layoutId];
@@ -46,6 +97,27 @@ export function BoardCanvas() {
     FIELD_PADDING_METERS,
   );
   const stageTransform = composeStageTransform(baseTransform, zoom, pan, center);
+
+  // ツール切替時は作成途中の図形を破棄する(レンダー中の状態調整パターン)
+  const [previousTool, setPreviousTool] = useState(tool);
+  if (previousTool !== tool) {
+    setPreviousTool(tool);
+    setDraft(null);
+  }
+
+  // Escapeで作成途中の図形をキャンセルする
+  useEffect(() => {
+    if (!draft) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setDraft(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [draft]);
 
   // ホイールズーム(preventDefaultのためpassive:falseで登録する)
   useEffect(() => {
@@ -77,12 +149,38 @@ export function BoardCanvas() {
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
 
+  const toFieldPoint = (event: ReactPointerEvent<HTMLDivElement>): Point =>
+    screenToField(stageTransform, toLocalPoint(event));
+
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
+    const currentTool = useBoardStore.getState().tool;
+    if (DRAG_SHAPE_TYPES.includes(currentTool as DragShapeType)) {
+      const fieldPoint = toFieldPoint(event);
+      setDraft({
+        kind: 'drag',
+        type: currentTool as DragShapeType,
+        start: fieldPoint,
+        current: fieldPoint,
+      });
+      return;
+    }
     activePointers.current.set(event.pointerId, toLocalPoint(event));
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (draft) {
+      const fieldPoint = toFieldPoint(event);
+      setDraft(
+        draft.kind === 'drag'
+          ? { ...draft, current: fieldPoint }
+          : { ...draft, current: fieldPoint },
+      );
+      if (draft.kind === 'drag') {
+        return;
+      }
+    }
+
     const pointers = activePointers.current;
     if (!pointers.has(event.pointerId)) {
       return;
@@ -124,17 +222,31 @@ export function BoardCanvas() {
   };
 
   const handlePointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (draft?.kind === 'drag') {
+      const { addObject, setTool, continuousPlacement } = useBoardStore.getState();
+      addObject(buildDragShape(draft.type, draft.start, toFieldPoint(event)));
+      setDraft(null);
+      if (!continuousPlacement) {
+        setTool('select');
+      }
+      return;
+    }
     activePointers.current.delete(event.pointerId);
     if (activePointers.current.size < 2) {
       pinchState.current = null;
     }
   };
 
-  /** 配置ツール選択中のクリックでオブジェクトを追加する */
+  /** クリック: ポイント配置ツールは即配置、頂点ツールは頂点を追加する */
   const handleStageClick = (event: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    const { tool, continuousPlacement, addObject, setTool, clearSelection } =
-      useBoardStore.getState();
-    if (tool === 'select') {
+    const {
+      tool: currentTool,
+      continuousPlacement,
+      addObject,
+      setTool,
+      clearSelection,
+    } = useBoardStore.getState();
+    if (currentTool === 'select') {
       // 何もない場所のクリックで選択解除
       if (event.target === event.target.getStage()) {
         clearSelection();
@@ -146,9 +258,43 @@ export function BoardCanvas() {
       return;
     }
     const fieldPoint = screenToField(stageTransform, pointer);
-    addObject(createObjectAt(tool, fieldPoint.x, fieldPoint.y));
+
+    if (VERTEX_SHAPE_TYPES.includes(currentTool as VertexShapeType)) {
+      setDraft((previous) =>
+        previous?.kind === 'vertices'
+          ? { ...previous, vertices: [...previous.vertices, fieldPoint] }
+          : {
+              kind: 'vertices',
+              type: currentTool as VertexShapeType,
+              vertices: [fieldPoint],
+              current: null,
+            },
+      );
+      return;
+    }
+    if (DRAG_SHAPE_TYPES.includes(currentTool as DragShapeType) || currentTool === 'freehand') {
+      // ドラッグ配置/手書きはポインタイベント側で処理する
+      return;
+    }
+    addObject(createObjectAt(currentTool, fieldPoint.x, fieldPoint.y));
     if (!continuousPlacement) {
       setTool('select');
+    }
+  };
+
+  /** ダブルクリックで頂点ツールの図形を確定する */
+  const handleStageDblClick = () => {
+    if (draft?.kind !== 'vertices') {
+      return;
+    }
+    const { addObject, setTool, continuousPlacement } = useBoardStore.getState();
+    const object = buildVertexShape(draft.type, draft.vertices);
+    if (object) {
+      addObject(object);
+      setDraft(null);
+      if (!continuousPlacement) {
+        setTool('select');
+      }
     }
   };
 
@@ -174,10 +320,13 @@ export function BoardCanvas() {
             rotation={stageTransform.rotation}
             onClick={handleStageClick}
             onTap={handleStageClick}
+            onDblClick={handleStageDblClick}
+            onDblTap={handleStageDblClick}
           >
             <Layer>
               <FieldLines spec={spec} colors={fieldColors} />
               <BoardObjects />
+              {draft && <DraftPreview draft={draft} />}
             </Layer>
           </Stage>
         </div>

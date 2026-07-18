@@ -4,7 +4,7 @@ import { useBoardStore } from '@/stores/boardStore';
 import { withOpacity } from './objectStyles';
 import { angleToPoint } from './playerActions';
 import { PlayerShape } from './PlayerShape';
-import type { BoardObject, PlayerObject } from './objectTypes';
+import type { BoardObject, PlayerObject, PolygonObject, PolylineObject } from './objectTypes';
 
 /** 各オブジェクトのKonvaノードに共通で渡す操作プロパティ */
 interface CommonNodeProps {
@@ -209,19 +209,51 @@ function RotationHandle({ player }: { player: PlayerObject }) {
   );
 }
 
+/** 選択中ポリゴン/ポリラインの頂点編集ハンドル */
+function VertexHandles({ object }: { object: PolygonObject | PolylineObject }) {
+  const updateObject = useBoardStore((state) => state.updateObject);
+  const vertexCount = Math.floor(object.points.length / 2);
+
+  return (
+    <>
+      {Array.from({ length: vertexCount }, (_, index) => (
+        <Circle
+          key={index}
+          x={object.x + object.points[index * 2]}
+          y={object.y + object.points[index * 2 + 1]}
+          radius={0.55}
+          fill="#ffffff"
+          stroke="#00e5ff"
+          strokeWidth={0.12}
+          draggable
+          onDragMove={(event) => {
+            const points = [...object.points];
+            points[index * 2] = event.target.x() - object.x;
+            points[index * 2 + 1] = event.target.y() - object.y;
+            updateObject(object.id, { points });
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
 /** 現在のシーンの全オブジェクトを描画するグループ */
 export function BoardObjects() {
   const objects = useBoardStore((state) => state.objects);
   const selectedIds = useBoardStore((state) => state.selectedIds);
 
+  const singleSelected =
+    selectedIds.length === 1 ? objects.find((object) => object.id === selectedIds[0]) : undefined;
+
   const selectedPlayer =
-    selectedIds.length === 1
-      ? objects.find(
-          (object): object is PlayerObject =>
-            object.id === selectedIds[0] &&
-            object.type === 'player' &&
-            (object.showArrow || object.showArm),
-        )
+    singleSelected?.type === 'player' && (singleSelected.showArrow || singleSelected.showArm)
+      ? singleSelected
+      : undefined;
+
+  const selectedVertexShape =
+    singleSelected?.type === 'polygon' || singleSelected?.type === 'polyline'
+      ? singleSelected
       : undefined;
 
   return (
@@ -230,6 +262,7 @@ export function BoardObjects() {
         <ObjectShape key={object.id} object={object} selected={selectedIds.includes(object.id)} />
       ))}
       {selectedPlayer && <RotationHandle player={selectedPlayer} />}
+      {selectedVertexShape && <VertexHandles object={selectedVertexShape} />}
     </Group>
   );
 }
