@@ -42,6 +42,73 @@
   height: calc(100vh - 3rem);
 }
 
+.project-list {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.project-list__create {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.project-list__create input {
+  min-width: 16rem;
+}
+
+.project-list__grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.project-card {
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.project-card__main .scene-thumbnail {
+  width: 100%;
+}
+
+.project-card__title {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.project-card__meta {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.project-card__actions {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem 0.6rem;
+}
+
 .save-bar {
   display: flex;
   gap: 0.6rem;

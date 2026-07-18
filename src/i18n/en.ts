@@ -21,6 +21,17 @@ export const en: TranslationResource = {
   },
   projects: {
     title: 'Projects',
+    create: 'Create',
+    titlePlaceholder: 'Project title',
+    defaultTitle: 'New project',
+    duplicate: 'Duplicate',
+    delete: 'Delete',
+    confirmDelete: 'Delete this project? This cannot be undone.',
+    empty: 'No projects yet. Create one to get started.',
+    loadFailed: 'Failed to load projects.',
+    createFailed: 'Failed to create the project.',
+    duplicateFailed: 'Failed to duplicate the project.',
+    deleteFailed: 'Failed to delete the project.',
   },
   board: {
     title: 'Tactics Board',

@@ -93,21 +93,44 @@ export async function updateProjectMeta(
   );
 }
 
-/** プロジェクト一覧を取得する(Phase4.3で使用) */
-export async function listProjects(uid: string): Promise<ProjectMeta[]> {
+/** 一覧表示用のプロジェクト情報(サムネイル用に先頭シーンのオブジェクトを含む) */
+export interface ProjectListItem extends ProjectMeta {
+  previewObjects: BoardSnapshot['scenes'][number]['objects'];
+}
+
+/** プロジェクト一覧を更新日時の新しい順で取得する */
+export async function listProjects(uid: string): Promise<ProjectListItem[]> {
   const result = await getDocs(projectsCollection(uid));
   return result.docs
     .map((docSnapshot) => {
       const data = docSnapshot.data();
+      const snapshot = normalizeSnapshot(data);
       return {
         id: docSnapshot.id,
         title: typeof data.title === 'string' ? data.title : '',
         tags: Array.isArray(data.tags) ? data.tags.filter((tag) => typeof tag === 'string') : [],
-        sportType: (data.sportType as SportType) ?? 'soccer11',
+        sportType: snapshot.sportType,
         updatedAt: toMillis(data.updatedAt),
+        previewObjects: snapshot.scenes[0]?.objects ?? [],
       };
     })
     .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+}
+
+/** プロジェクトを複製し、新しいIDを返す */
+export async function duplicateProject(uid: string, projectId: string): Promise<string | null> {
+  const source = await loadProject(uid, projectId);
+  if (!source) {
+    return null;
+  }
+  const reference = await addDoc(projectsCollection(uid), {
+    title: `${source.meta.title} (コピー)`,
+    tags: source.meta.tags,
+    ...source.snapshot,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return reference.id;
 }
 
 /** プロジェクトを削除する(Phase4.3で使用) */

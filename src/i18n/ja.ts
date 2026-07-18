@@ -12,6 +12,17 @@ export const ja = {
   },
   projects: {
     title: 'プロジェクト一覧',
+    create: '新規作成',
+    titlePlaceholder: 'プロジェクト名',
+    defaultTitle: '新しいプロジェクト',
+    duplicate: '複製',
+    delete: '削除',
+    confirmDelete: 'このプロジェクトを削除しますか?この操作は取り消せません。',
+    empty: 'プロジェクトがまだありません。新規作成から始めましょう。',
+    loadFailed: 'プロジェクト一覧の取得に失敗しました。',
+    createFailed: 'プロジェクトの作成に失敗しました。',
+    duplicateFailed: 'プロジェクトの複製に失敗しました。',
+    deleteFailed: 'プロジェクトの削除に失敗しました。',
   },
   board: {
     title: '戦術ボード',

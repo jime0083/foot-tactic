@@ -17,6 +17,12 @@ vi.mock('@/features/projects/projectService', () => ({
     },
     snapshot: createInitialSnapshot('soccer11'),
   })),
+  listProjects: vi.fn(async () => []),
+  createProject: vi.fn(),
+  duplicateProject: vi.fn(),
+  deleteProject: vi.fn(),
+  saveProjectSnapshot: vi.fn(),
+  updateProjectMeta: vi.fn(),
 }));
 
 function renderWithAuth(state: AuthState, initialPath: string) {

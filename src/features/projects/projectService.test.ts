@@ -3,6 +3,7 @@ import { addDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import {
   createProject,
   deleteProject,
+  duplicateProject,
   loadProject,
   saveProjectSnapshot,
   updateProjectMeta,
@@ -88,5 +89,31 @@ describe('projectService', () => {
     (deleteDoc as Mock).mockResolvedValue(undefined);
     await deleteProject('u1', 'p1');
     expect(deleteDoc).toHaveBeenCalled();
+  });
+
+  it('duplicateProject: 元の内容をコピーして新規作成する', async () => {
+    (getDoc as Mock).mockResolvedValue({
+      exists: () => true,
+      id: 'p1',
+      data: () => ({
+        title: 'vs FC東京',
+        tags: ['リーグ戦'],
+        sportType: 'soccer11',
+        scenes: [{ id: 's1', objects: [] }],
+      }),
+    });
+    (addDoc as Mock).mockResolvedValue({ id: 'copy-id' });
+
+    const id = await duplicateProject('u1', 'p1');
+
+    expect(id).toBe('copy-id');
+    const payload = (addDoc as Mock).mock.calls[0][1];
+    expect(payload.title).toBe('vs FC東京 (コピー)');
+    expect(payload.tags).toEqual(['リーグ戦']);
+  });
+
+  it('duplicateProject: 元が存在しない場合はnullを返す', async () => {
+    (getDoc as Mock).mockResolvedValue({ exists: () => false });
+    expect(await duplicateProject('u1', 'missing')).toBeNull();
   });
 });
