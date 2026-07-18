@@ -22,9 +22,9 @@ Phase 0: 要件定義 【完了】
 Phase 1: プロジェクト基盤
 =====================================================
 ※着手前提: Work1.1〜1.4(manual-work.txt)。Phase1.1開始前にWork1.4(GitHubリポジトリ)が必要
-[ ] Phase1.1 Vite + React + TypeScript プロジェクト初期化
-    - ディレクトリ構成(src/components, src/features, src/stores, src/lib 等)
-    - ESLint / Prettier 設定、npm scripts整備
+[x] Phase1.1 Vite + React + TypeScript プロジェクト初期化 (2026-07-19)
+    - ディレクトリ構成(src/components, src/features, src/stores, src/lib, src/i18n)
+    - ESLint / Prettier / Vitest(+Testing Library) 設定、npm scripts整備
 [ ] Phase1.2 Firebase SDK導入と初期化モジュール作成
     - .env による構成値管理(Work1.1で取得した値を使用)
     - firebase初期化(Auth / Firestore)のlibモジュール
