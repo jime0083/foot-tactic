@@ -110,6 +110,87 @@ export function PlayerPanel() {
     );
   }
 
+  if (
+    selected.type === 'line' ||
+    selected.type === 'circle' ||
+    selected.type === 'rect' ||
+    selected.type === 'polygon' ||
+    selected.type === 'polyline' ||
+    selected.type === 'freehand'
+  ) {
+    const hasFill =
+      selected.type === 'circle' || selected.type === 'rect' || selected.type === 'polygon';
+    const hasLineStyle = selected.type === 'line' || selected.type === 'polyline';
+    return (
+      <div className="object-panel">
+        <label>
+          {t('board.shape.stroke')}
+          <input
+            type="color"
+            value={selected.stroke}
+            onChange={(event) => updateObject(selected.id, { stroke: event.target.value })}
+          />
+        </label>
+        <label>
+          {t('board.shape.strokeWidth')}
+          <input
+            type="range"
+            min={1}
+            max={10}
+            value={Math.round(selected.strokeWidth * 10)}
+            onChange={(event) =>
+              updateObject(selected.id, { strokeWidth: Number(event.target.value) / 10 })
+            }
+          />
+        </label>
+        {hasFill && (
+          <>
+            <label>
+              {t('board.shape.fill')}
+              <input
+                type="color"
+                value={selected.fill}
+                onChange={(event) => updateObject(selected.id, { fill: event.target.value })}
+              />
+            </label>
+            <label>
+              {t('board.shape.fillOpacity')}
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round(selected.fillOpacity * 100)}
+                onChange={(event) =>
+                  updateObject(selected.id, { fillOpacity: Number(event.target.value) / 100 })
+                }
+              />
+            </label>
+          </>
+        )}
+        {hasLineStyle && (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                checked={selected.dashed}
+                onChange={(event) => updateObject(selected.id, { dashed: event.target.checked })}
+              />
+              {t('board.shape.dashed')}
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={selected.arrow}
+                onChange={(event) => updateObject(selected.id, { arrow: event.target.checked })}
+              />
+              {t('board.shape.arrow')}
+            </label>
+          </>
+        )}
+      </div>
+    );
+  }
+
   if (selected.type !== 'player') {
     return null;
   }

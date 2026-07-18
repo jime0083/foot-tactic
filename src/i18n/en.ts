@@ -44,6 +44,16 @@ export const en: TranslationResource = {
       continuous: 'Repeat',
       selectByType: 'Select by type',
       delete: 'Delete',
+      bringToFront: 'Bring to front',
+      sendToBack: 'Send to back',
+    },
+    shape: {
+      stroke: 'Stroke',
+      strokeWidth: 'Stroke width',
+      fill: 'Fill',
+      fillOpacity: 'Fill opacity',
+      dashed: 'Dashed',
+      arrow: 'Arrow',
     },
     marker: {
       size: 'Size',

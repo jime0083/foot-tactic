@@ -10,7 +10,7 @@ export interface CreateObjectOptions {
 
 let idCounter = 0;
 
-function generateId(): string {
+export function generateObjectId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
@@ -26,7 +26,7 @@ export function createObjectAt(
   y: number,
   options: CreateObjectOptions = {},
 ): BoardObject {
-  const base = { id: generateId(), x, y, rotation: 0 };
+  const base = { id: generateObjectId(), x, y, rotation: 0 };
   switch (type) {
     case 'player':
       return {

@@ -3,6 +3,7 @@ import { clampZoom, ZERO_PAN, type PanOffset } from '@/features/board/boardView'
 import { DEFAULT_FIELD_COLORS, type FieldColors } from '@/features/board/field/fieldColors';
 import type { FieldLayoutId } from '@/features/board/field/fieldLayouts';
 import type { SportType } from '@/features/board/field/fieldSpec';
+import { bringToFront, sendToBack } from '@/features/board/objects/objectOps';
 import type { BoardObject, BoardTool } from '@/features/board/objects/objectTypes';
 
 /** ボード全体のアスペクト比(書き出し・表示枠) */
@@ -42,6 +43,11 @@ interface BoardState {
   setSelection: (ids: string[]) => void;
   clearSelection: () => void;
   setPlayerDisplay: (settings: Partial<PlayerDisplaySettings>) => void;
+  /** コピー&ペースト用クリップボード */
+  clipboard: BoardObject[];
+  setClipboard: (objects: BoardObject[]) => void;
+  /** 選択オブジェクトの重なり順を変更する */
+  reorderSelected: (direction: 'front' | 'back') => void;
 }
 
 /** 全プレイヤー共通の表示設定 */
@@ -97,4 +103,13 @@ export const useBoardStore = create<BoardState>((set) => ({
   clearSelection: () => set({ selectedIds: [] }),
   setPlayerDisplay: (settings) =>
     set((state) => ({ playerDisplay: { ...state.playerDisplay, ...settings } })),
+  clipboard: [],
+  setClipboard: (objects) => set({ clipboard: objects }),
+  reorderSelected: (direction) =>
+    set((state) => ({
+      objects:
+        direction === 'front'
+          ? bringToFront(state.objects, state.selectedIds)
+          : sendToBack(state.objects, state.selectedIds),
+    })),
 }));

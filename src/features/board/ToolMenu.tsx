@@ -14,6 +14,7 @@ export function ToolMenu() {
   const toggleContinuousPlacement = useBoardStore((state) => state.toggleContinuousPlacement);
   const selectedIds = useBoardStore((state) => state.selectedIds);
   const removeObjects = useBoardStore((state) => state.removeObjects);
+  const reorderSelected = useBoardStore((state) => state.reorderSelected);
 
   const handleSelectByType = (value: string) => {
     if (value === '') {
@@ -58,6 +59,20 @@ export function ToolMenu() {
         onClick={() => removeObjects(selectedIds)}
       >
         {t('board.tools.delete')}
+      </button>
+      <button
+        type="button"
+        disabled={selectedIds.length === 0}
+        onClick={() => reorderSelected('front')}
+      >
+        {t('board.tools.bringToFront')}
+      </button>
+      <button
+        type="button"
+        disabled={selectedIds.length === 0}
+        onClick={() => reorderSelected('back')}
+      >
+        {t('board.tools.sendToBack')}
       </button>
     </div>
   );

@@ -35,6 +35,16 @@ export const ja = {
       continuous: '連続配置',
       selectByType: '種類で選択',
       delete: '削除',
+      bringToFront: '最前面へ',
+      sendToBack: '最背面へ',
+    },
+    shape: {
+      stroke: '線の色',
+      strokeWidth: '線の太さ',
+      fill: '塗り色',
+      fillOpacity: '塗り不透明度',
+      dashed: '点線',
+      arrow: '矢印',
     },
     marker: {
       size: 'サイズ',

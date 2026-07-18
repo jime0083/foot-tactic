@@ -16,6 +16,7 @@ import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
 import { FIELD_SPECS } from './field/fieldSpec';
 import { BoardObjects } from './objects/BoardObjects';
 import { createObjectAt } from './objects/createObject';
+import { cloneObjects } from './objects/objectOps';
 import { isEditableElement, normalizeRect, selectIdsInRect } from './objects/selection';
 import {
   appendFreehandPoint,
@@ -122,19 +123,49 @@ export function BoardCanvas() {
     setDraft(null);
   }
 
-  // Delete/Backspaceで選択オブジェクトを削除する
+  // キーボードショートカット(削除/複製/コピー/ペースト)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Delete' && event.key !== 'Backspace') {
-        return;
-      }
       if (isEditableElement(document.activeElement)) {
         return;
       }
-      const { selectedIds, removeObjects } = useBoardStore.getState();
-      if (selectedIds.length > 0) {
+      const store = useBoardStore.getState();
+      const isMod = event.metaKey || event.ctrlKey;
+      const key = event.key.toLowerCase();
+
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (store.selectedIds.length > 0) {
+          event.preventDefault();
+          store.removeObjects(store.selectedIds);
+        }
+        return;
+      }
+      if (!isMod) {
+        return;
+      }
+      const selectedObjects = store.objects.filter((object) =>
+        store.selectedIds.includes(object.id),
+      );
+      if (key === 'd' && selectedObjects.length > 0) {
+        // 複製
         event.preventDefault();
-        removeObjects(selectedIds);
+        const clones = cloneObjects(selectedObjects);
+        store.setObjects([...store.objects, ...clones]);
+        store.setSelection(clones.map((clone) => clone.id));
+        return;
+      }
+      if (key === 'c' && selectedObjects.length > 0) {
+        // コピー
+        event.preventDefault();
+        store.setClipboard(selectedObjects);
+        return;
+      }
+      if (key === 'v' && store.clipboard.length > 0) {
+        // ペースト
+        event.preventDefault();
+        const clones = cloneObjects(store.clipboard);
+        store.setObjects([...store.objects, ...clones]);
+        store.setSelection(clones.map((clone) => clone.id));
       }
     };
     window.addEventListener('keydown', handleKeyDown);

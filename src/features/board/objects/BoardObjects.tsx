@@ -1,14 +1,28 @@
+import { useEffect, useRef } from 'react';
 import type Konva from 'konva';
-import { Circle, Group, Line, Rect, RegularPolygon, Text } from 'react-konva';
+import { Arrow, Circle, Group, Line, Rect, RegularPolygon, Text, Transformer } from 'react-konva';
 import { useBoardStore } from '@/stores/boardStore';
+import { applyNodeTransform } from './objectOps';
 import { withOpacity } from './objectStyles';
 import { angleToPoint } from './playerActions';
 import { toggleSelection } from './selection';
 import { PlayerShape } from './PlayerShape';
 import type { BoardObject, PlayerObject, PolygonObject, PolylineObject } from './objectTypes';
 
+/** Transformerでリサイズ・回転できるオブジェクト種別 */
+const TRANSFORMABLE_TYPES = new Set<BoardObject['type']>([
+  'line',
+  'circle',
+  'rect',
+  'polygon',
+  'polyline',
+  'text',
+  'freehand',
+]);
+
 /** 各オブジェクトのKonvaノードに共通で渡す操作プロパティ */
 interface CommonNodeProps {
+  id: string;
   draggable: boolean;
   onDragEnd: (event: Konva.KonvaEventObject<DragEvent>) => void;
   onClick: (event: Konva.KonvaEventObject<MouseEvent>) => void;
@@ -27,6 +41,7 @@ function useCommonNodeProps(objectId: string): CommonNodeProps {
   };
 
   return {
+    id: objectId,
     draggable: selectable,
     onDragEnd: (event) => {
       updateObject(objectId, { x: event.target.x(), y: event.target.y() });
@@ -86,21 +101,26 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           {...common}
         />
       );
-    case 'line':
+    case 'line': {
+      const LineComponent = object.arrow ? Arrow : Line;
       return (
-        <Line
+        <LineComponent
           x={object.x}
           y={object.y}
           rotation={object.rotation}
           points={object.points}
           stroke={selected ? '#00e5ff' : object.stroke}
+          fill={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           dash={object.dashed ? [1, 0.6] : undefined}
           lineCap="round"
+          pointerLength={object.strokeWidth * 4}
+          pointerWidth={object.strokeWidth * 4}
           hitStrokeWidth={1.5}
           {...common}
         />
       );
+    }
     case 'circle':
       return (
         <Circle
@@ -141,22 +161,27 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           {...common}
         />
       );
-    case 'polyline':
+    case 'polyline': {
+      const PolylineComponent = object.arrow ? Arrow : Line;
       return (
-        <Line
+        <PolylineComponent
           x={object.x}
           y={object.y}
           rotation={object.rotation}
           points={object.points}
           stroke={selected ? '#00e5ff' : object.stroke}
+          fill={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
           dash={object.dashed ? [1, 0.6] : undefined}
           lineCap="round"
           lineJoin="round"
+          pointerLength={object.strokeWidth * 4}
+          pointerWidth={object.strokeWidth * 4}
           hitStrokeWidth={1.5}
           {...common}
         />
       );
+    }
     case 'text':
       return (
         <Text
@@ -245,6 +270,67 @@ function VertexHandles({ object }: { object: PolygonObject | PolylineObject }) {
   );
 }
 
+/** 選択中の図形・テキストにリサイズ/回転ハンドルを表示するTransformer */
+function SelectionTransformer() {
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const selectedIds = useBoardStore((state) => state.selectedIds);
+  const objects = useBoardStore((state) => state.objects);
+  const tool = useBoardStore((state) => state.tool);
+
+  useEffect(() => {
+    const transformer = transformerRef.current;
+    if (!transformer) {
+      return;
+    }
+    const stage = transformer.getStage();
+    if (!stage) {
+      return;
+    }
+    const nodes = selectedIds.flatMap((id) => {
+      const object = objects.find((candidate) => candidate.id === id);
+      if (!object || !TRANSFORMABLE_TYPES.has(object.type)) {
+        return [];
+      }
+      const node = stage.findOne(`#${id}`);
+      return node ? [node] : [];
+    });
+    transformer.nodes(nodes);
+  }, [selectedIds, objects, tool]);
+
+  if (tool !== 'select') {
+    return null;
+  }
+
+  const handleTransformEnd = (event: Konva.KonvaEventObject<Event>) => {
+    const node = event.target;
+    const { objects: currentObjects, updateObject } = useBoardStore.getState();
+    const object = currentObjects.find((candidate) => candidate.id === node.id());
+    if (!object) {
+      return;
+    }
+    const patch = applyNodeTransform(object, {
+      x: node.x(),
+      y: node.y(),
+      rotation: node.rotation(),
+      scaleX: node.scaleX(),
+      scaleY: node.scaleY(),
+    });
+    // スケールはオブジェクトのサイズへ焼き込み、ノードは等倍へ戻す
+    node.scale({ x: 1, y: 1 });
+    node.rotation(patch.rotation ?? 0);
+    updateObject(object.id, patch);
+  };
+
+  return (
+    <Transformer
+      ref={transformerRef}
+      rotateEnabled
+      flipEnabled={false}
+      onTransformEnd={handleTransformEnd}
+    />
+  );
+}
+
 /** 現在のシーンの全オブジェクトを描画するグループ */
 export function BoardObjects() {
   const objects = useBoardStore((state) => state.objects);
@@ -270,6 +356,7 @@ export function BoardObjects() {
       ))}
       {selectedPlayer && <RotationHandle player={selectedPlayer} />}
       {selectedVertexShape && <VertexHandles object={selectedVertexShape} />}
+      <SelectionTransformer />
     </Group>
   );
 }

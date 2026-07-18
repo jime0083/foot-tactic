@@ -83,6 +83,32 @@ describe('PlayerPanel', () => {
     expect((useBoardStore.getState().objects[0] as BallObject).color).toBe('#ff8800');
   });
 
+  it('図形選択時に線の色と塗り不透明度を変更できる', () => {
+    const rect = createObjectAt('rect', 30, 30);
+    useBoardStore.setState({ objects: [rect], selectedIds: [rect.id] });
+    render(<PlayerPanel />);
+
+    fireEvent.change(screen.getByLabelText('線の色'), { target: { value: '#00ff00' } });
+    fireEvent.change(screen.getByLabelText('塗り不透明度'), { target: { value: '50' } });
+
+    const updated = useBoardStore.getState().objects[0];
+    expect(updated.type === 'rect' && updated.stroke).toBe('#00ff00');
+    expect(updated.type === 'rect' && updated.fillOpacity).toBe(0.5);
+  });
+
+  it('ライン選択時に点線と矢印を切り替えられる', async () => {
+    const line = createObjectAt('line', 30, 30);
+    useBoardStore.setState({ objects: [line], selectedIds: [line.id] });
+    render(<PlayerPanel />);
+
+    await userEvent.click(screen.getByRole('checkbox', { name: '点線' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: '矢印' }));
+
+    const updated = useBoardStore.getState().objects[0];
+    expect(updated.type === 'line' && updated.dashed).toBe(true);
+    expect(updated.type === 'line' && updated.arrow).toBe(true);
+  });
+
   it('テキスト選択時に内容と文字サイズを変更できる', () => {
     const text = createObjectAt('text', 30, 30);
     useBoardStore.setState({ objects: [text], selectedIds: [text.id] });

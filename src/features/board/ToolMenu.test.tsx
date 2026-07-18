@@ -44,6 +44,19 @@ describe('ToolMenu', () => {
     expect(screen.getByRole('button', { name: '削除' })).toBeDisabled();
   });
 
+  it('最前面へ/最背面へで重なり順が変わる', async () => {
+    const a = createObjectAt('ball', 0, 0);
+    const b = createObjectAt('ball', 1, 1);
+    useBoardStore.setState({ objects: [a, b], selectedIds: [a.id] });
+    render(<ToolMenu />);
+
+    await userEvent.click(screen.getByRole('button', { name: '最前面へ' }));
+    expect(useBoardStore.getState().objects.map((o) => o.id)).toEqual([b.id, a.id]);
+
+    await userEvent.click(screen.getByRole('button', { name: '最背面へ' }));
+    expect(useBoardStore.getState().objects.map((o) => o.id)).toEqual([a.id, b.id]);
+  });
+
   it('ツールを選ぶとストアが更新され押下状態になる', async () => {
     render(<ToolMenu />);
     await userEvent.click(screen.getByRole('button', { name: '選手' }));
