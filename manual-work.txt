@@ -10,12 +10,12 @@
 =====================================================
 Work1: Firebase / Google Cloud 初期セットアップ
 =====================================================
-[ ] Work1.1 Firebaseプロジェクト作成とWebアプリ登録
+[x] Work1.1 Firebaseプロジェクト作成とWebアプリ登録 (2026-07-19 完了・firebaseConfig受領)
     期限: Phase1.2 開始まで
     手順:
       1. https://console.firebase.google.com/ で新規プロジェクト作成(例: foot-tactic)
       2. プロジェクト設定 > 全般 > 「アプリを追加」でWebアプリを登録
-      3. 表示されるfirebaseConfig(apiKey, authDomain, projectId, storageBucket,
+      3. 表示されるWeb(apiKey, authDomain, projectId, storageBucket,
          messagingSenderId, appId)の値をAIに共有する(.envに設定するため)
     備考: 無料のSparkプランで開始可能(Cloud Functionsは使用しない構成)
 

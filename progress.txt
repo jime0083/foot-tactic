@@ -25,9 +25,9 @@ Phase 1: プロジェクト基盤
 [x] Phase1.1 Vite + React + TypeScript プロジェクト初期化 (2026-07-19)
     - ディレクトリ構成(src/components, src/features, src/stores, src/lib, src/i18n)
     - ESLint / Prettier / Vitest(+Testing Library) 設定、npm scripts整備
-[ ] Phase1.2 Firebase SDK導入と初期化モジュール作成
-    - .env による構成値管理(Work1.1で取得した値を使用)
-    - firebase初期化(Auth / Firestore)のlibモジュール
+[x] Phase1.2 Firebase SDK導入と初期化モジュール作成 (2026-07-19)
+    - .env による構成値管理(Work1.1で取得した値を使用)+.env.example
+    - firebase初期化(Auth / Firestore)のlibモジュール+環境変数バリデーション
 [ ] Phase1.3 ルーティングと認証ガード
     - react-router導入。/login, /projects, /board/:id, /settings の4ルート
     - 未ログイン時は/loginへリダイレクトする認証ガード
