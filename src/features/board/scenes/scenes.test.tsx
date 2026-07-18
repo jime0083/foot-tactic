@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SceneStrip } from './SceneStrip';
+import { SceneThumbnail } from './SceneThumbnail';
 import { createObjectAt } from '../objects/createObject';
 import { useBoardStore } from '@/stores/boardStore';
 
@@ -83,6 +84,43 @@ describe('boardStore シーン管理', () => {
     const state = useBoardStore.getState();
     expect(state.selectedIds).toHaveLength(0);
     expect(state.past).toHaveLength(0);
+  });
+});
+
+describe('boardStore moveScene', () => {
+  beforeEach(resetScenes);
+
+  it('シーンを並び替えても現在シーンを追従する', () => {
+    useBoardStore.getState().addObject(createObjectAt('ball', 10, 10));
+    useBoardStore.getState().addScene(); // scene2(current)
+    useBoardStore.getState().addScene(); // scene3(current)
+
+    // 現在(3番目)を先頭へ移動
+    useBoardStore.getState().moveScene(2, 0);
+
+    const state = useBoardStore.getState();
+    expect(state.currentSceneIndex).toBe(0);
+    expect(state.scenes).toHaveLength(3);
+    // 元の1番目(ballあり)は2番目に移動している
+    expect(state.scenes[1].objects).toHaveLength(1);
+  });
+
+  it('範囲外や同一インデックスは何もしない', () => {
+    const before = useBoardStore.getState().scenes;
+    useBoardStore.getState().moveScene(0, 0);
+    useBoardStore.getState().moveScene(0, 5);
+    expect(useBoardStore.getState().scenes).toEqual(before);
+  });
+});
+
+describe('SceneThumbnail', () => {
+  it('オブジェクトの位置がミニマップに描画される', () => {
+    const player = createObjectAt('player', 30, 20);
+    const ball = createObjectAt('ball', 50, 34);
+    const { container } = render(<SceneThumbnail objects={[player, ball]} sportType="soccer11" />);
+    // フィールド+ハーフウェーライン+オブジェクト2つ
+    expect(container.querySelectorAll('circle')).toHaveLength(2);
+    expect(container.querySelector('svg')).toHaveAttribute('viewBox', '-2 -2 109 72');
   });
 });
 

@@ -78,6 +78,8 @@ interface BoardState {
   duplicateScene: () => void;
   deleteScene: (index: number) => void;
   switchScene: (index: number) => void;
+  /** シーンをドラッグ&ドロップで並び替える */
+  moveScene: (from: number, to: number) => void;
 }
 
 /** 全プレイヤー共通の表示設定 */
@@ -260,6 +262,26 @@ export const useBoardStore = create<BoardState>((set) => ({
         objects: scenes[index].objects,
         ...RESET_EDIT_STATE,
       };
+    }),
+  moveScene: (from, to) =>
+    set((state) => {
+      if (
+        from === to ||
+        from < 0 ||
+        to < 0 ||
+        from >= state.scenes.length ||
+        to >= state.scenes.length
+      ) {
+        return {};
+      }
+      const scenes = commitCurrentScene(state);
+      const reordered = [...scenes];
+      const [moved] = reordered.splice(from, 1);
+      reordered.splice(to, 0, moved);
+      // 現在シーンの位置を追従させる
+      const currentId = scenes[state.currentSceneIndex].id;
+      const currentSceneIndex = reordered.findIndex((scene) => scene.id === currentId);
+      return { scenes: reordered, currentSceneIndex };
     }),
 }));
 
