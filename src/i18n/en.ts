@@ -65,6 +65,12 @@ export const en: TranslationResource = {
       dashed: 'Dashed',
       arrow: 'Arrow',
     },
+    formation: {
+      title: 'Formation',
+      system: 'System',
+      centered: 'From center',
+      apply: 'Place players',
+    },
     marker: {
       size: 'Size',
     },

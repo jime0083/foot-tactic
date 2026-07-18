@@ -56,6 +56,12 @@ export const ja = {
       dashed: '点線',
       arrow: '矢印',
     },
+    formation: {
+      title: 'フォーメーション',
+      system: 'システム',
+      centered: '中央基準',
+      apply: '一括配置',
+    },
     marker: {
       size: 'サイズ',
     },
