@@ -37,6 +37,8 @@ export const ja = {
       delete: '削除',
       bringToFront: '最前面へ',
       sendToBack: '最背面へ',
+      undo: '元に戻す',
+      redo: 'やり直す',
     },
     align: {
       left: '左揃え',

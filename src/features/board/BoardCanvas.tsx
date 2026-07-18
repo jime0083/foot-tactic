@@ -143,6 +143,20 @@ export function BoardCanvas() {
       if (!isMod) {
         return;
       }
+      if (key === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) {
+          store.redo();
+        } else {
+          store.undo();
+        }
+        return;
+      }
+      if (key === 'y') {
+        event.preventDefault();
+        store.redo();
+        return;
+      }
       const selectedObjects = store.objects.filter((object) =>
         store.selectedIds.includes(object.id),
       );

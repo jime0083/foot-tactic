@@ -10,6 +10,9 @@ import type { BoardObject, BoardTool } from '@/features/board/objects/objectType
 /** ボード全体のアスペクト比(書き出し・表示枠) */
 export type BoardAspect = '16:9' | '9:16';
 
+/** 保持する履歴の最大数 */
+const MAX_HISTORY = 100;
+
 interface BoardState {
   sportType: SportType;
   layoutId: FieldLayoutId;
@@ -29,6 +32,12 @@ interface BoardState {
   selectedIds: string[];
   /** 全プレイヤー共通の表示設定 */
   playerDisplay: PlayerDisplaySettings;
+  /** Undo用の履歴(objectsのスナップショット) */
+  past: BoardObject[][];
+  /** Redo用の履歴 */
+  future: BoardObject[][];
+  /** 連続更新(スライダー操作等)の履歴を1つにまとめるためのキー */
+  lastUpdateKey: string | null;
   setSportType: (sportType: SportType) => void;
   setLayoutId: (layoutId: FieldLayoutId) => void;
   setAspect: (aspect: BoardAspect) => void;
@@ -51,6 +60,10 @@ interface BoardState {
   reorderSelected: (direction: 'front' | 'back') => void;
   /** 選択オブジェクトを整列する */
   alignSelected: (mode: AlignMode) => void;
+  undo: () => void;
+  redo: () => void;
+  /** 履歴を破棄する(シーン切替・プロジェクト読込時用) */
+  clearHistory: () => void;
 }
 
 /** 全プレイヤー共通の表示設定 */
@@ -66,6 +79,23 @@ export const DEFAULT_PLAYER_DISPLAY: PlayerDisplaySettings = {
   nameFontSize: 1.6,
 };
 
+/** objectsの変更を履歴に積む共通処理。updateKeyが直前と同じ場合は履歴をまとめる */
+function withHistory(
+  state: Pick<BoardState, 'objects' | 'past' | 'lastUpdateKey'>,
+  objects: BoardObject[],
+  updateKey: string | null = null,
+): Pick<BoardState, 'objects' | 'past' | 'future' | 'lastUpdateKey'> {
+  if (updateKey !== null && updateKey === state.lastUpdateKey) {
+    return { objects, past: state.past, future: [], lastUpdateKey: updateKey };
+  }
+  return {
+    objects,
+    past: [...state.past.slice(-(MAX_HISTORY - 1)), state.objects],
+    future: [],
+    lastUpdateKey: updateKey,
+  };
+}
+
 export const useBoardStore = create<BoardState>((set) => ({
   sportType: 'soccer11',
   layoutId: 'full-landscape',
@@ -78,6 +108,9 @@ export const useBoardStore = create<BoardState>((set) => ({
   objects: [],
   selectedIds: [],
   playerDisplay: DEFAULT_PLAYER_DISPLAY,
+  past: [],
+  future: [],
+  lastUpdateKey: null,
   // 表示対象が変わるためズーム・パンはリセットする
   setSportType: (sportType) => set({ sportType, zoom: 1, pan: ZERO_PAN }),
   setLayoutId: (layoutId) => set({ layoutId, zoom: 1, pan: ZERO_PAN }),
@@ -89,32 +122,70 @@ export const useBoardStore = create<BoardState>((set) => ({
   setTool: (tool) => set({ tool }),
   toggleContinuousPlacement: () =>
     set((state) => ({ continuousPlacement: !state.continuousPlacement })),
-  addObject: (object) => set((state) => ({ objects: [...state.objects, object] })),
+  addObject: (object) => set((state) => withHistory(state, [...state.objects, object])),
   updateObject: (id, patch) =>
-    set((state) => ({
-      objects: state.objects.map((object) =>
-        object.id === id ? ({ ...object, ...patch } as BoardObject) : object,
+    set((state) =>
+      withHistory(
+        state,
+        state.objects.map((object) =>
+          object.id === id ? ({ ...object, ...patch } as BoardObject) : object,
+        ),
+        `${id}:${Object.keys(patch).sort().join(',')}`,
       ),
-    })),
+    ),
   removeObjects: (ids) =>
     set((state) => ({
-      objects: state.objects.filter((object) => !ids.includes(object.id)),
+      ...withHistory(
+        state,
+        state.objects.filter((object) => !ids.includes(object.id)),
+      ),
       selectedIds: state.selectedIds.filter((id) => !ids.includes(id)),
     })),
-  setObjects: (objects) => set({ objects, selectedIds: [] }),
-  setSelection: (ids) => set({ selectedIds: ids }),
-  clearSelection: () => set({ selectedIds: [] }),
+  setObjects: (objects) => set((state) => ({ ...withHistory(state, objects), selectedIds: [] })),
+  setSelection: (ids) => set({ selectedIds: ids, lastUpdateKey: null }),
+  clearSelection: () => set({ selectedIds: [], lastUpdateKey: null }),
   setPlayerDisplay: (settings) =>
     set((state) => ({ playerDisplay: { ...state.playerDisplay, ...settings } })),
   clipboard: [],
   setClipboard: (objects) => set({ clipboard: objects }),
   reorderSelected: (direction) =>
-    set((state) => ({
-      objects:
+    set((state) =>
+      withHistory(
+        state,
         direction === 'front'
           ? bringToFront(state.objects, state.selectedIds)
           : sendToBack(state.objects, state.selectedIds),
-    })),
+      ),
+    ),
   alignSelected: (mode) =>
-    set((state) => ({ objects: alignObjects(state.objects, state.selectedIds, mode) })),
+    set((state) => withHistory(state, alignObjects(state.objects, state.selectedIds, mode))),
+  undo: () =>
+    set((state) => {
+      const previous = state.past[state.past.length - 1];
+      if (!previous) {
+        return {};
+      }
+      return {
+        objects: previous,
+        past: state.past.slice(0, -1),
+        future: [state.objects, ...state.future],
+        selectedIds: [],
+        lastUpdateKey: null,
+      };
+    }),
+  redo: () =>
+    set((state) => {
+      const next = state.future[0];
+      if (!next) {
+        return {};
+      }
+      return {
+        objects: next,
+        past: [...state.past, state.objects],
+        future: state.future.slice(1),
+        selectedIds: [],
+        lastUpdateKey: null,
+      };
+    }),
+  clearHistory: () => set({ past: [], future: [], lastUpdateKey: null }),
 }));

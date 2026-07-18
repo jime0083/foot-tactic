@@ -19,6 +19,10 @@ export function ToolMenu() {
   const removeObjects = useBoardStore((state) => state.removeObjects);
   const reorderSelected = useBoardStore((state) => state.reorderSelected);
   const alignSelected = useBoardStore((state) => state.alignSelected);
+  const undo = useBoardStore((state) => state.undo);
+  const redo = useBoardStore((state) => state.redo);
+  const canUndo = useBoardStore((state) => state.past.length > 0);
+  const canRedo = useBoardStore((state) => state.future.length > 0);
 
   const handleSelectByType = (value: string) => {
     if (value === '') {
@@ -77,6 +81,12 @@ export function ToolMenu() {
         onClick={() => reorderSelected('back')}
       >
         {t('board.tools.sendToBack')}
+      </button>
+      <button type="button" disabled={!canUndo} onClick={undo}>
+        {t('board.tools.undo')}
+      </button>
+      <button type="button" disabled={!canRedo} onClick={redo}>
+        {t('board.tools.redo')}
       </button>
       {ALIGN_MODES.map((mode) => (
         <button

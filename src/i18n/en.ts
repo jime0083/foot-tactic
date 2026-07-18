@@ -46,6 +46,8 @@ export const en: TranslationResource = {
       delete: 'Delete',
       bringToFront: 'Bring to front',
       sendToBack: 'Send to back',
+      undo: 'Undo',
+      redo: 'Redo',
     },
     align: {
       left: 'Align left',
