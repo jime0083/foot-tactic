@@ -28,9 +28,10 @@ Phase 1: プロジェクト基盤
 [x] Phase1.2 Firebase SDK導入と初期化モジュール作成 (2026-07-19)
     - .env による構成値管理(Work1.1で取得した値を使用)+.env.example
     - firebase初期化(Auth / Firestore)のlibモジュール+環境変数バリデーション
-[ ] Phase1.3 ルーティングと認証ガード
-    - react-router導入。/login, /projects, /board/:id, /settings の4ルート
-    - 未ログイン時は/loginへリダイレクトする認証ガード
+[x] Phase1.3 ルーティングと認証ガード (2026-07-19)
+    - react-router v7導入。/login, /projects, /board/:projectId, /settings の4ルート
+    - 未ログイン時は/loginへリダイレクトする認証ガード(RequireAuth)
+    - ログイン済みで/loginアクセス時は/projectsへリダイレクト
 [ ] Phase1.4 Googleログイン/ログアウト実装
     - ログイン画面UI(Googleログインボタン+サービス説明)
     - 初回ログイン時に users/{uid} ドキュメント作成(displayName, email, settings, plan)

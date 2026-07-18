@@ -1,11 +1,15 @@
+import { BrowserRouter } from 'react-router';
+import { AuthProvider } from '@/features/auth/AuthProvider';
+import { AppRoutes } from '@/AppRoutes';
 import './App.css';
 
 function App() {
   return (
-    <main className="app">
-      <h1>foot-tactic</h1>
-      <p>サッカー戦術ボード + メモアプリ(開発中)</p>
-    </main>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
