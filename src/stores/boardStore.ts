@@ -3,6 +3,7 @@ import { clampZoom, ZERO_PAN, type PanOffset } from '@/features/board/boardView'
 import { DEFAULT_FIELD_COLORS, type FieldColors } from '@/features/board/field/fieldColors';
 import type { FieldLayoutId } from '@/features/board/field/fieldLayouts';
 import type { SportType } from '@/features/board/field/fieldSpec';
+import { alignObjects, type AlignMode } from '@/features/board/objects/alignment';
 import { bringToFront, sendToBack } from '@/features/board/objects/objectOps';
 import type { BoardObject, BoardTool } from '@/features/board/objects/objectTypes';
 
@@ -48,6 +49,8 @@ interface BoardState {
   setClipboard: (objects: BoardObject[]) => void;
   /** 選択オブジェクトの重なり順を変更する */
   reorderSelected: (direction: 'front' | 'back') => void;
+  /** 選択オブジェクトを整列する */
+  alignSelected: (mode: AlignMode) => void;
 }
 
 /** 全プレイヤー共通の表示設定 */
@@ -112,4 +115,6 @@ export const useBoardStore = create<BoardState>((set) => ({
           ? bringToFront(state.objects, state.selectedIds)
           : sendToBack(state.objects, state.selectedIds),
     })),
+  alignSelected: (mode) =>
+    set((state) => ({ objects: alignObjects(state.objects, state.selectedIds, mode) })),
 }));

@@ -1,9 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useBoardStore } from '@/stores/boardStore';
+import type { AlignMode } from './objects/alignment';
 import { BOARD_TOOLS, type BoardObjectType } from './objects/objectTypes';
 import { idsOfType } from './objects/selection';
 
 const OBJECT_TYPES = BOARD_TOOLS.filter((tool): tool is BoardObjectType => tool !== 'select');
+
+const ALIGN_MODES: AlignMode[] = ['left', 'right', 'top', 'bottom', 'distributeH', 'distributeV'];
 
 /** オブジェクト配置ツールの選択メニュー */
 export function ToolMenu() {
@@ -15,6 +18,7 @@ export function ToolMenu() {
   const selectedIds = useBoardStore((state) => state.selectedIds);
   const removeObjects = useBoardStore((state) => state.removeObjects);
   const reorderSelected = useBoardStore((state) => state.reorderSelected);
+  const alignSelected = useBoardStore((state) => state.alignSelected);
 
   const handleSelectByType = (value: string) => {
     if (value === '') {
@@ -74,6 +78,16 @@ export function ToolMenu() {
       >
         {t('board.tools.sendToBack')}
       </button>
+      {ALIGN_MODES.map((mode) => (
+        <button
+          key={mode}
+          type="button"
+          disabled={selectedIds.length < (mode === 'distributeH' || mode === 'distributeV' ? 3 : 2)}
+          onClick={() => alignSelected(mode)}
+        >
+          {t(`board.align.${mode}`)}
+        </button>
+      ))}
     </div>
   );
 }

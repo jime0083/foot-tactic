@@ -44,6 +44,27 @@ describe('ToolMenu', () => {
     expect(screen.getByRole('button', { name: '削除' })).toBeDisabled();
   });
 
+  it('整列ボタンで選択オブジェクトが揃う', async () => {
+    const a = createObjectAt('player', 10, 10);
+    const b = createObjectAt('player', 20, 20);
+    useBoardStore.setState({ objects: [a, b], selectedIds: [a.id, b.id] });
+    render(<ToolMenu />);
+
+    await userEvent.click(screen.getByRole('button', { name: '左揃え' }));
+
+    expect(useBoardStore.getState().objects.map((o) => o.x)).toEqual([10, 10]);
+  });
+
+  it('分布ボタンは3個未満の選択では無効になる', () => {
+    const a = createObjectAt('player', 10, 10);
+    const b = createObjectAt('player', 20, 20);
+    useBoardStore.setState({ objects: [a, b], selectedIds: [a.id, b.id] });
+    render(<ToolMenu />);
+
+    expect(screen.getByRole('button', { name: '水平分布' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '左揃え' })).toBeEnabled();
+  });
+
   it('最前面へ/最背面へで重なり順が変わる', async () => {
     const a = createObjectAt('ball', 0, 0);
     const b = createObjectAt('ball', 1, 1);

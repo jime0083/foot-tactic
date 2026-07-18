@@ -38,6 +38,14 @@ export const ja = {
       bringToFront: '最前面へ',
       sendToBack: '最背面へ',
     },
+    align: {
+      left: '左揃え',
+      right: '右揃え',
+      top: '上揃え',
+      bottom: '下揃え',
+      distributeH: '水平分布',
+      distributeV: '垂直分布',
+    },
     shape: {
       stroke: '線の色',
       strokeWidth: '線の太さ',

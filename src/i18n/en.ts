@@ -47,6 +47,14 @@ export const en: TranslationResource = {
       bringToFront: 'Bring to front',
       sendToBack: 'Send to back',
     },
+    align: {
+      left: 'Align left',
+      right: 'Align right',
+      top: 'Align top',
+      bottom: 'Align bottom',
+      distributeH: 'Distribute horizontally',
+      distributeV: 'Distribute vertically',
+    },
     shape: {
       stroke: 'Stroke',
       strokeWidth: 'Stroke width',
