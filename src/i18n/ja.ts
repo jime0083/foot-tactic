@@ -63,6 +63,10 @@ export const ja = {
       apply: '一括配置',
       roster: '選手リスト',
       rosterPlaceholder: '1行に1人。例: 10,山田(CSVペースト可。背番号省略時はポジション名を表示)',
+      lineupTab: '先発',
+      substituteTab: '控え',
+      substituteRoster: '控え選手リスト',
+      applySubstitutes: '控えを配置',
     },
     marker: {
       size: 'サイズ',

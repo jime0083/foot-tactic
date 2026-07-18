@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useBoardStore } from '@/stores/boardStore';
 import { FIELD_SPECS } from '../field/fieldSpec';
 import type { TeamSide } from '../objects/objectTypes';
-import { buildFormationPlayers, replaceTeamPlayers } from './formationPlacement';
+import {
+  buildFormationPlayers,
+  buildSubstitutePlayers,
+  replaceTeamPlayers,
+  replaceTeamSubstitutes,
+} from './formationPlacement';
 import { FORMATIONS } from './formations';
 import { parseRoster } from './parseRoster';
 
@@ -14,6 +19,8 @@ export function FormationPanel() {
   const [team, setTeam] = useState<TeamSide>('home');
   const [centered, setCentered] = useState(false);
   const [rosterText, setRosterText] = useState('');
+  const [substituteText, setSubstituteText] = useState('');
+  const [activeTab, setActiveTab] = useState<'lineup' | 'substitute'>('lineup');
   const sportType = useBoardStore((state) => state.sportType);
   const formations = FORMATIONS[sportType];
   const [formationId, setFormationId] = useState(formations[0].id);
@@ -39,6 +46,13 @@ export function FormationPanel() {
     store.setObjects(replaceTeamPlayers(store.objects, team, players));
   };
 
+  const handleApplySubstitutes = () => {
+    const store = useBoardStore.getState();
+    const spec = FIELD_SPECS[store.sportType];
+    const players = buildSubstitutePlayers(spec, team, parseRoster(substituteText));
+    store.setObjects(replaceTeamSubstitutes(store.objects, spec, team, players));
+  };
+
   return (
     <div className="formation-panel">
       <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
@@ -46,6 +60,24 @@ export function FormationPanel() {
       </button>
       {open && (
         <div className="formation-panel__body">
+          <div role="tablist" className="formation-panel__tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'lineup'}
+              onClick={() => setActiveTab('lineup')}
+            >
+              {t('board.formation.lineupTab')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'substitute'}
+              onClick={() => setActiveTab('substitute')}
+            >
+              {t('board.formation.substituteTab')}
+            </button>
+          </div>
           <label>
             {t('board.player.team')}
             <select value={team} onChange={(event) => setTeam(event.target.value as TeamSide)}>
@@ -53,36 +85,58 @@ export function FormationPanel() {
               <option value="away">{t('board.player.away')}</option>
             </select>
           </label>
-          <label>
-            {t('board.formation.system')}
-            <select value={formationId} onChange={(event) => setFormationId(event.target.value)}>
-              {formations.map((formation) => (
-                <option key={formation.id} value={formation.id}>
-                  {formation.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={centered}
-              onChange={(event) => setCentered(event.target.checked)}
-            />
-            {t('board.formation.centered')}
-          </label>
-          <label className="formation-panel__roster">
-            {t('board.formation.roster')}
-            <textarea
-              rows={4}
-              value={rosterText}
-              placeholder={t('board.formation.rosterPlaceholder')}
-              onChange={(event) => setRosterText(event.target.value)}
-            />
-          </label>
-          <button type="button" onClick={handleApply}>
-            {t('board.formation.apply')}
-          </button>
+          {activeTab === 'lineup' ? (
+            <>
+              <label>
+                {t('board.formation.system')}
+                <select
+                  value={formationId}
+                  onChange={(event) => setFormationId(event.target.value)}
+                >
+                  {formations.map((formation) => (
+                    <option key={formation.id} value={formation.id}>
+                      {formation.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={centered}
+                  onChange={(event) => setCentered(event.target.checked)}
+                />
+                {t('board.formation.centered')}
+              </label>
+              <label className="formation-panel__roster">
+                {t('board.formation.roster')}
+                <textarea
+                  rows={4}
+                  value={rosterText}
+                  placeholder={t('board.formation.rosterPlaceholder')}
+                  onChange={(event) => setRosterText(event.target.value)}
+                />
+              </label>
+              <button type="button" onClick={handleApply}>
+                {t('board.formation.apply')}
+              </button>
+            </>
+          ) : (
+            <>
+              <label className="formation-panel__roster">
+                {t('board.formation.substituteRoster')}
+                <textarea
+                  rows={4}
+                  value={substituteText}
+                  placeholder={t('board.formation.rosterPlaceholder')}
+                  onChange={(event) => setSubstituteText(event.target.value)}
+                />
+              </label>
+              <button type="button" onClick={handleApplySubstitutes}>
+                {t('board.formation.applySubstitutes')}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

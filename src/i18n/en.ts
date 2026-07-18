@@ -73,6 +73,10 @@ export const en: TranslationResource = {
       roster: 'Player list',
       rosterPlaceholder:
         'One player per line, e.g. "10,Yamada" (CSV paste supported; position shown if number omitted)',
+      lineupTab: 'Line-up',
+      substituteTab: 'Substitutes',
+      substituteRoster: 'Substitute list',
+      applySubstitutes: 'Place substitutes',
     },
     marker: {
       size: 'Size',

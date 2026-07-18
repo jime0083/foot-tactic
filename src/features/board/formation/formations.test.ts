@@ -1,5 +1,10 @@
 import { FIELD_SPEC_SOCCER11 } from '../field/fieldSpec';
-import { buildFormationPlayers, replaceTeamPlayers } from './formationPlacement';
+import {
+  buildFormationPlayers,
+  buildSubstitutePlayers,
+  replaceTeamPlayers,
+  replaceTeamSubstitutes,
+} from './formationPlacement';
 import { FORMATIONS } from './formations';
 import { createObjectAt } from '../objects/createObject';
 import type { PlayerObject } from '../objects/objectTypes';
@@ -84,6 +89,49 @@ describe('buildFormationPlayers', () => {
     expect(players[1].number).toBe('LB'); // 背番号省略→ポジション名
     expect(players[1].name).toBe('左SB');
     expect(players[2].name).toBe('');
+  });
+});
+
+describe('buildSubstitutePlayers / replaceTeamSubstitutes', () => {
+  const roster = [
+    { number: '12', name: '控えGK' },
+    { number: '13', name: '控えDF' },
+  ];
+
+  it('控えはフィールド外(下側)に等間隔で並ぶ', () => {
+    const subs = buildSubstitutePlayers(FIELD_SPEC_SOCCER11, 'home', roster);
+    expect(subs).toHaveLength(2);
+    for (const player of subs) {
+      expect(player.y).toBeGreaterThan(FIELD_SPEC_SOCCER11.width);
+    }
+    expect(subs[1].x).toBeGreaterThan(subs[0].x);
+    expect(subs[0].number).toBe('12');
+    expect(subs[0].name).toBe('控えGK');
+  });
+
+  it('アウェイの控えは右端から左へ並ぶ', () => {
+    const subs = buildSubstitutePlayers(FIELD_SPEC_SOCCER11, 'away', roster);
+    expect(subs[0].x).toBeGreaterThan(subs[1].x);
+    expect(subs[0].x).toBeCloseTo(103);
+  });
+
+  it('控えの置換では先発(フィールド内)を維持する', () => {
+    const starters = buildFormationPlayers(FIELD_SPEC_SOCCER11, FORMATIONS.soccer11[0], 'home');
+    const oldSubs = buildSubstitutePlayers(FIELD_SPEC_SOCCER11, 'home', [
+      { number: '99', name: '旧控え' },
+    ]);
+    const newSubs = buildSubstitutePlayers(FIELD_SPEC_SOCCER11, 'home', roster);
+
+    const result = replaceTeamSubstitutes(
+      [...starters, ...oldSubs],
+      FIELD_SPEC_SOCCER11,
+      'home',
+      newSubs,
+    );
+
+    expect(result).toHaveLength(11 + 2);
+    expect(result.some((object) => object.id === oldSubs[0].id)).toBe(false);
+    expect(result.filter((object) => starters.some((s) => s.id === object.id))).toHaveLength(11);
   });
 });
 

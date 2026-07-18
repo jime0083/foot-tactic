@@ -46,12 +46,55 @@ export function buildFormationPlayers(
   });
 }
 
-/** 指定チームの既存プレイヤーを置き換えて新しいオブジェクト配列を返す */
+/** 指定チームの既存プレイヤー(フィールド内=先発)を置き換えて新しいオブジェクト配列を返す */
 export function replaceTeamPlayers(
   objects: readonly BoardObject[],
   team: TeamSide,
   players: PlayerObject[],
 ): BoardObject[] {
   const others = objects.filter((object) => !(object.type === 'player' && object.team === team));
+  return [...others, ...players];
+}
+
+/** 控え選手の1人あたり間隔(メートル) */
+const SUBSTITUTE_SPACING = 3.2;
+/** フィールド下端から控え選手までの距離(メートル) */
+const SUBSTITUTE_MARGIN = 2.5;
+
+/**
+ * 控え選手をフィールド外(下側)に一列で並べたプレイヤー一式を生成する。
+ * ホームは左端から右へ、アウェイは右端から左へ並べる。
+ */
+export function buildSubstitutePlayers(
+  spec: FieldSpec,
+  team: TeamSide,
+  roster: RosterEntry[],
+): PlayerObject[] {
+  const y = spec.width + SUBSTITUTE_MARGIN;
+  return roster.map((entry, index) => {
+    const offset = index * SUBSTITUTE_SPACING;
+    const x = team === 'home' ? 2 + offset : spec.length - 2 - offset;
+    const base = createObjectAt('player', x, y, { team }) as PlayerObject;
+    return {
+      ...base,
+      number: entry.number.trim(),
+      name: entry.name,
+    };
+  });
+}
+
+/**
+ * 指定チームの控え選手(フィールド外=y座標がフィールド幅を超えるプレイヤー)を
+ * 置き換えて新しいオブジェクト配列を返す。先発(フィールド内)は維持する。
+ */
+export function replaceTeamSubstitutes(
+  objects: readonly BoardObject[],
+  spec: FieldSpec,
+  team: TeamSide,
+  players: PlayerObject[],
+): BoardObject[] {
+  const others = objects.filter(
+    (object) => !(object.type === 'player' && object.team === team && object.y > spec.width),
+  );
   return [...others, ...players];
 }
