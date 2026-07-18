@@ -68,6 +68,12 @@ export const ja = {
       substituteRoster: '控え選手リスト',
       applySubstitutes: '控えを配置',
     },
+    scenes: {
+      title: 'シーン',
+      add: '追加',
+      duplicate: '複製',
+      delete: '削除',
+    },
     marker: {
       size: 'サイズ',
     },

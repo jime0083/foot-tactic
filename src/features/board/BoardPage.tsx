@@ -4,6 +4,7 @@ import { BoardCanvas } from './BoardCanvas';
 import { FieldSettingsBar } from './FieldSettingsBar';
 import { FormationPanel } from './formation/FormationPanel';
 import { PlayerPanel } from './PlayerPanel';
+import { SceneStrip } from './scenes/SceneStrip';
 import { ToolMenu } from './ToolMenu';
 
 export function BoardPage() {
@@ -18,7 +19,8 @@ export function BoardPage() {
       <FormationPanel />
       <PlayerPanel />
       <BoardCanvas />
-      {/* ツールメニューはPhase2.5、メモエリアはPhase5.1で実装 */}
+      <SceneStrip />
+      {/* メモエリアはPhase5.1で実装 */}
     </main>
   );
 }

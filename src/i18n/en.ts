@@ -78,6 +78,12 @@ export const en: TranslationResource = {
       substituteRoster: 'Substitute list',
       applySubstitutes: 'Place substitutes',
     },
+    scenes: {
+      title: 'Scenes',
+      add: 'Add',
+      duplicate: 'Duplicate',
+      delete: 'Delete',
+    },
     marker: {
       size: 'Size',
     },

@@ -4,11 +4,18 @@ import { DEFAULT_FIELD_COLORS, type FieldColors } from '@/features/board/field/f
 import type { FieldLayoutId } from '@/features/board/field/fieldLayouts';
 import type { SportType } from '@/features/board/field/fieldSpec';
 import { alignObjects, type AlignMode } from '@/features/board/objects/alignment';
+import { generateObjectId } from '@/features/board/objects/createObject';
 import { bringToFront, sendToBack } from '@/features/board/objects/objectOps';
 import type { BoardObject, BoardTool } from '@/features/board/objects/objectTypes';
 
 /** ボード全体のアスペクト比(書き出し・表示枠) */
 export type BoardAspect = '16:9' | '9:16';
+
+/** 1プロジェクト内のシーン。objectsは現在シーンのみstateのobjectsが正となる */
+export interface Scene {
+  id: string;
+  objects: BoardObject[];
+}
 
 /** 保持する履歴の最大数 */
 const MAX_HISTORY = 100;
@@ -64,6 +71,13 @@ interface BoardState {
   redo: () => void;
   /** 履歴を破棄する(シーン切替・プロジェクト読込時用) */
   clearHistory: () => void;
+  /** シーン一覧(現在シーンのobjectsは切替時に同期される) */
+  scenes: Scene[];
+  currentSceneIndex: number;
+  addScene: () => void;
+  duplicateScene: () => void;
+  deleteScene: (index: number) => void;
+  switchScene: (index: number) => void;
 }
 
 /** 全プレイヤー共通の表示設定 */
@@ -188,4 +202,80 @@ export const useBoardStore = create<BoardState>((set) => ({
       };
     }),
   clearHistory: () => set({ past: [], future: [], lastUpdateKey: null }),
+  scenes: [{ id: generateObjectId(), objects: [] }],
+  currentSceneIndex: 0,
+  addScene: () =>
+    set((state) => {
+      const scenes = commitCurrentScene(state);
+      return {
+        scenes: [...scenes, { id: generateObjectId(), objects: [] }],
+        currentSceneIndex: scenes.length,
+        objects: [],
+        ...RESET_EDIT_STATE,
+      };
+    }),
+  duplicateScene: () =>
+    set((state) => {
+      const scenes = commitCurrentScene(state);
+      const current = scenes[state.currentSceneIndex];
+      const copy: Scene = { id: generateObjectId(), objects: [...current.objects] };
+      const nextScenes = [
+        ...scenes.slice(0, state.currentSceneIndex + 1),
+        copy,
+        ...scenes.slice(state.currentSceneIndex + 1),
+      ];
+      return {
+        scenes: nextScenes,
+        currentSceneIndex: state.currentSceneIndex + 1,
+        objects: copy.objects,
+        ...RESET_EDIT_STATE,
+      };
+    }),
+  deleteScene: (index) =>
+    set((state) => {
+      if (state.scenes.length <= 1 || index < 0 || index >= state.scenes.length) {
+        return {};
+      }
+      const scenes = commitCurrentScene(state).filter((_, i) => i !== index);
+      const nextIndex = Math.min(
+        state.currentSceneIndex > index ? state.currentSceneIndex - 1 : state.currentSceneIndex,
+        scenes.length - 1,
+      );
+      return {
+        scenes,
+        currentSceneIndex: nextIndex,
+        objects: scenes[nextIndex].objects,
+        ...RESET_EDIT_STATE,
+      };
+    }),
+  switchScene: (index) =>
+    set((state) => {
+      if (index === state.currentSceneIndex || index < 0 || index >= state.scenes.length) {
+        return {};
+      }
+      const scenes = commitCurrentScene(state);
+      return {
+        scenes,
+        currentSceneIndex: index,
+        objects: scenes[index].objects,
+        ...RESET_EDIT_STATE,
+      };
+    }),
 }));
+
+/** シーン操作時にリセットする編集系ステート */
+const RESET_EDIT_STATE = {
+  selectedIds: [] as string[],
+  past: [] as BoardObject[][],
+  future: [] as BoardObject[][],
+  lastUpdateKey: null,
+};
+
+/** 現在の作業中objectsをシーン一覧へ書き戻す */
+function commitCurrentScene(
+  state: Pick<BoardState, 'scenes' | 'currentSceneIndex' | 'objects'>,
+): Scene[] {
+  return state.scenes.map((scene, index) =>
+    index === state.currentSceneIndex ? { ...scene, objects: state.objects } : scene,
+  );
+}
