@@ -34,3 +34,28 @@
   color: var(--accent);
   font-weight: 600;
 }
+
+.board-page {
+  display: flex;
+  flex-direction: column;
+  /* ヘッダーを除いた画面全体を使う */
+  height: calc(100vh - 3rem);
+}
+
+.board-canvas {
+  flex: 1;
+  min-height: 0;
+  background: #1b5e20;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

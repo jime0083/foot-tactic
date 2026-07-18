@@ -41,7 +41,7 @@ Work1: Firebase / Google Cloud 初期セットアップ
       3. 未認証の場合は `gh auth login` を実行して認証するか、
          GitHub上で空のリポジトリ(例: foot-tactic)を作成しリモートURLをAIに共有する
 
-[ ] Work1.5 Firestoreセキュリティルールの本番反映
+[x] Work1.5 Firestoreセキュリティルールの本番反映 (2026-07-19 完了・方法B(コンソール貼り付け)で公開)
     期限: Phase2 開始まで(Phase1完了後のログイン動作確認に必要)
     手順(いずれか一方でOK):
       方法A: ターミナルで `firebase login` を実行しブラウザで認証

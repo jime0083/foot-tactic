@@ -40,7 +40,7 @@ describe('AppRoutes 認証ガード', () => {
   it('ログイン済みで/board/:projectIdにアクセスするとボード画面が表示される', () => {
     renderWithAuth({ user: mockUser, loading: false }, '/board/abc123');
     expect(screen.getByRole('heading', { name: '戦術ボード' })).toBeInTheDocument();
-    expect(screen.getByText('プロジェクトID: abc123')).toBeInTheDocument();
+    expect(screen.getByTestId('board-canvas')).toBeInTheDocument();
   });
 
   it('不明なパスは/projectsへリダイレクトされる', () => {
