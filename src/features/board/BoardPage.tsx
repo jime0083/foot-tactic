@@ -1,5 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
+import { useAuth } from '@/features/auth/useAuth';
+import { loadBoardSnapshot } from '@/features/projects/boardSnapshot';
+import { loadProject } from '@/features/projects/projectService';
 import { BoardCanvas } from './BoardCanvas';
 import { FieldSettingsBar } from './FieldSettingsBar';
 import { FormationPanel } from './formation/FormationPanel';
@@ -7,13 +11,66 @@ import { PlayerPanel } from './PlayerPanel';
 import { SceneStrip } from './scenes/SceneStrip';
 import { ToolMenu } from './ToolMenu';
 
+type LoadStatus = 'loading' | 'ready' | 'notFound' | 'error';
+
 export function BoardPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { projectId } = useParams<{ projectId: string }>();
+  const [status, setStatus] = useState<LoadStatus>('loading');
+  const [title, setTitle] = useState('');
+
+  // プロジェクトIDが変わったら読み込み中に戻す(レンダー中の状態調整パターン)
+  const [requestedProjectId, setRequestedProjectId] = useState(projectId);
+  if (requestedProjectId !== projectId) {
+    setRequestedProjectId(projectId);
+    setStatus('loading');
+  }
+
+  useEffect(() => {
+    if (!user || !projectId) {
+      return;
+    }
+    let cancelled = false;
+    loadProject(user.uid, projectId)
+      .then((project) => {
+        if (cancelled) {
+          return;
+        }
+        if (!project) {
+          setStatus('notFound');
+          return;
+        }
+        loadBoardSnapshot(project.snapshot);
+        setTitle(project.meta.title);
+        setStatus('ready');
+      })
+      .catch((error: unknown) => {
+        console.error('プロジェクトの読み込みに失敗しました', error);
+        if (!cancelled) {
+          setStatus('error');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, projectId]);
+
+  if (status === 'loading') {
+    return <p role="status">{t('common.loading')}</p>;
+  }
+  if (status === 'notFound' || status === 'error') {
+    return (
+      <main className="app">
+        <p role="alert">{status === 'notFound' ? t('board.notFound') : t('board.loadFailed')}</p>
+        <Link to="/projects">{t('projects.title')}</Link>
+      </main>
+    );
+  }
 
   return (
     <main className="board-page" data-project-id={projectId}>
-      <h1 className="visually-hidden">{t('board.title')}</h1>
+      <h1 className="visually-hidden">{title || t('board.title')}</h1>
       <FieldSettingsBar />
       <ToolMenu />
       <FormationPanel />

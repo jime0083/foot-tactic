@@ -24,6 +24,8 @@ export const en: TranslationResource = {
   },
   board: {
     title: 'Tactics Board',
+    notFound: 'Project not found',
+    loadFailed: 'Failed to load the project. Please try again.',
     sportLabel: 'Sport',
     layoutLabel: 'View',
     aspectLabel: 'Aspect',

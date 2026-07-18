@@ -1,8 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import type { User } from 'firebase/auth';
+import { vi } from 'vitest';
 import { AuthContext, type AuthState } from '@/features/auth/auth-context';
 import { AppRoutes } from '@/AppRoutes';
+import { createInitialSnapshot } from '@/features/projects/projectTypes';
+
+vi.mock('@/features/projects/projectService', () => ({
+  loadProject: vi.fn(async (_uid: string, projectId: string) => ({
+    meta: {
+      id: projectId,
+      title: 'テストプロジェクト',
+      tags: [],
+      sportType: 'soccer11',
+      updatedAt: null,
+    },
+    snapshot: createInitialSnapshot('soccer11'),
+  })),
+}));
 
 function renderWithAuth(state: AuthState, initialPath: string) {
   return render(
@@ -37,10 +52,10 @@ describe('AppRoutes 認証ガード', () => {
     expect(screen.getByRole('heading', { name: 'プロジェクト一覧' })).toBeInTheDocument();
   });
 
-  it('ログイン済みで/board/:projectIdにアクセスするとボード画面が表示される', () => {
+  it('ログイン済みで/board/:projectIdにアクセスするとボード画面が表示される', async () => {
     renderWithAuth({ user: mockUser, loading: false }, '/board/abc123');
-    expect(screen.getByRole('heading', { name: '戦術ボード' })).toBeInTheDocument();
-    expect(screen.getByTestId('board-canvas')).toBeInTheDocument();
+    expect(await screen.findByTestId('board-canvas')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'テストプロジェクト' })).toBeInTheDocument();
   });
 
   it('不明なパスは/projectsへリダイレクトされる', () => {
