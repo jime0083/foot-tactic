@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // 自分のuid配下のデータのみ読み書き可能
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      // projects/memosなどのサブコレクションも本人のみアクセス可能
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+  }
+}

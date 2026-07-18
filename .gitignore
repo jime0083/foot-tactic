@@ -13,6 +13,11 @@ dist-ssr
 *.local
 coverage
 
+# Firebaseエミュレータ
+firestore-debug.log
+firebase-debug.log
+.firebase/
+
 # 環境変数(Firebase構成値など)
 .env
 .env.*
