@@ -1,4 +1,4 @@
-import { buildFieldShapes } from './fieldGeometry';
+import { buildFieldShapes, buildLaneRects, buildZoneRects } from './fieldGeometry';
 import { FIELD_SPEC_FUTSAL, FIELD_SPEC_SOCCER8, FIELD_SPEC_SOCCER11 } from './fieldSpec';
 
 describe('buildFieldShapes(11人制)', () => {
@@ -56,6 +56,22 @@ describe('buildFieldShapes(11人制)', () => {
     expect(left.x).toBeCloseTo(-2);
     expect(right.x).toBe(105);
     expect(left.height).toBeCloseTo(7.32);
+  });
+});
+
+describe('buildLaneRects / buildZoneRects', () => {
+  it('レーンはフィールドを縦に5分割した横帯になる', () => {
+    const lanes = buildLaneRects(FIELD_SPEC_SOCCER11);
+    expect(lanes).toHaveLength(5);
+    expect(lanes[0]).toEqual({ x: 0, y: 0, width: 105, height: 13.6 });
+    expect(lanes[4].y).toBeCloseTo(54.4);
+  });
+
+  it('ゾーンはフィールドを横に3分割した縦帯になる', () => {
+    const zones = buildZoneRects(FIELD_SPEC_SOCCER11);
+    expect(zones).toHaveLength(3);
+    expect(zones[0]).toEqual({ x: 0, y: 0, width: 35, height: 68 });
+    expect(zones[2].x).toBeCloseTo(70);
   });
 });
 

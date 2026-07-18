@@ -23,6 +23,15 @@ export const ja = {
       soccer8: '8人制',
       futsal: 'フットサル',
     },
+    colors: {
+      title: '色設定',
+      background: '背景',
+      line: 'ライン',
+      lane: 'レーン',
+      laneOpacity: 'レーン不透明度',
+      zone: 'ゾーン',
+      zoneOpacity: 'ゾーン不透明度',
+    },
     layout: {
       'full-landscape': '全景(横)',
       'full-portrait': '全景(縦)',

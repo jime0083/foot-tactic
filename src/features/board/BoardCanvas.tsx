@@ -15,6 +15,7 @@ export function BoardCanvas() {
   const sportType = useBoardStore((state) => state.sportType);
   const layoutId = useBoardStore((state) => state.layoutId);
   const aspect = useBoardStore((state) => state.aspect);
+  const fieldColors = useBoardStore((state) => state.fieldColors);
 
   const spec = FIELD_SPECS[sportType];
   const layout = FIELD_LAYOUTS[layoutId];
@@ -41,7 +42,7 @@ export function BoardCanvas() {
             rotation={transform.rotation}
           >
             <Layer>
-              <FieldLines spec={spec} />
+              <FieldLines spec={spec} colors={fieldColors} />
             </Layer>
           </Stage>
         </div>

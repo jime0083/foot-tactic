@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Arc, Circle, Group, Line, Rect } from 'react-konva';
-import { buildFieldShapes } from './fieldGeometry';
+import { buildFieldShapes, buildLaneRects, buildZoneRects } from './fieldGeometry';
 import { DEFAULT_FIELD_COLORS, type FieldColors } from './fieldColors';
 import type { FieldSpec } from './fieldSpec';
 
@@ -12,6 +12,8 @@ interface FieldLinesProps {
 /** フィールドのライン一式を描画する(座標はメートル単位、親のGroup/Stageでスケールする) */
 export function FieldLines({ spec, colors = DEFAULT_FIELD_COLORS }: FieldLinesProps) {
   const shapes = useMemo(() => buildFieldShapes(spec), [spec]);
+  const laneRects = useMemo(() => buildLaneRects(spec), [spec]);
+  const zoneRects = useMemo(() => buildZoneRects(spec), [spec]);
   const stroke = colors.line;
   const strokeWidth = spec.lineWidth;
 
@@ -26,6 +28,36 @@ export function FieldLines({ spec, colors = DEFAULT_FIELD_COLORS }: FieldLinesPr
         stroke={stroke}
         strokeWidth={strokeWidth}
       />
+      {colors.laneOpacity > 0 &&
+        laneRects.map(
+          (rect, index) =>
+            index % 2 === 1 && (
+              <Rect
+                key={`lane-${index}`}
+                x={rect.x}
+                y={rect.y}
+                width={rect.width}
+                height={rect.height}
+                fill={colors.lane}
+                opacity={colors.laneOpacity}
+              />
+            ),
+        )}
+      {colors.zoneOpacity > 0 &&
+        zoneRects.map(
+          (rect, index) =>
+            index % 2 === 1 && (
+              <Rect
+                key={`zone-${index}`}
+                x={rect.x}
+                y={rect.y}
+                width={rect.width}
+                height={rect.height}
+                fill={colors.zone}
+                opacity={colors.zoneOpacity}
+              />
+            ),
+        )}
       <Line points={shapes.halfwayLine.points} stroke={stroke} strokeWidth={strokeWidth} />
       <Circle
         x={shapes.centerCircle.x}

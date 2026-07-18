@@ -70,6 +70,32 @@
   background: #1b5e20;
 }
 
+.field-color-panel {
+  position: relative;
+}
+
+.field-color-panel__body {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.5rem 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+}
+
+.field-color-panel__body label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

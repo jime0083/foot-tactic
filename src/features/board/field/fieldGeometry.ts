@@ -173,6 +173,28 @@ function buildFutsalPaLines(spec: FieldSpec): LineShape[] {
   ];
 }
 
+/** レーン(縦分割): フィールドをゴールライン方向にcount分割した横帯 */
+export function buildLaneRects(spec: FieldSpec, count = 5): RectShape[] {
+  const laneHeight = spec.width / count;
+  return Array.from({ length: count }, (_, index) => ({
+    x: 0,
+    y: index * laneHeight,
+    width: spec.length,
+    height: laneHeight,
+  }));
+}
+
+/** ゾーン(横分割): フィールドをタッチライン方向にcount分割した縦帯 */
+export function buildZoneRects(spec: FieldSpec, count = 3): RectShape[] {
+  const zoneWidth = spec.length / count;
+  return Array.from({ length: count }, (_, index) => ({
+    x: index * zoneWidth,
+    y: 0,
+    width: zoneWidth,
+    height: spec.width,
+  }));
+}
+
 /** ゴールライン起点のエリア(ペナルティエリア/ゴールエリア)の矩形を求める */
 function areaRect(
   goalLineX: number,

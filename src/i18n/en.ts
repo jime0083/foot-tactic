@@ -32,6 +32,15 @@ export const en: TranslationResource = {
       soccer8: '8-a-side',
       futsal: 'Futsal',
     },
+    colors: {
+      title: 'Colors',
+      background: 'Background',
+      line: 'Lines',
+      lane: 'Lanes',
+      laneOpacity: 'Lane opacity',
+      zone: 'Zones',
+      zoneOpacity: 'Zone opacity',
+    },
     layout: {
       'full-landscape': 'Full pitch (landscape)',
       'full-portrait': 'Full pitch (portrait)',

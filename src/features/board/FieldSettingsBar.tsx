@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useBoardStore, type BoardAspect } from '@/stores/boardStore';
+import { FieldColorPanel } from './FieldColorPanel';
 import { FIELD_LAYOUT_IDS, type FieldLayoutId } from './field/fieldLayouts';
 import type { SportType } from './field/fieldSpec';
 
@@ -54,6 +55,7 @@ export function FieldSettingsBar() {
           ))}
         </select>
       </label>
+      <FieldColorPanel />
     </div>
   );
 }
