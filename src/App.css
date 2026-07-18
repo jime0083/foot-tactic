@@ -42,6 +42,15 @@
   height: calc(100vh - 3rem);
 }
 
+.save-bar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.3rem 1rem 0;
+  font-size: 0.8rem;
+}
+
 .board-toolbar {
   display: flex;
   gap: 1rem;

@@ -17,6 +17,13 @@ export const ja = {
     title: '戦術ボード',
     notFound: 'プロジェクトが見つかりません',
     loadFailed: 'プロジェクトの読み込みに失敗しました。再度お試しください。',
+    save: {
+      saved: '保存済み',
+      dirty: '未保存の変更あり',
+      saving: '保存中...',
+      error: '保存に失敗しました',
+      button: '保存',
+    },
     sportLabel: '競技',
     layoutLabel: '表示',
     aspectLabel: '比率',

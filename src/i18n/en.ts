@@ -26,6 +26,13 @@ export const en: TranslationResource = {
     title: 'Tactics Board',
     notFound: 'Project not found',
     loadFailed: 'Failed to load the project. Please try again.',
+    save: {
+      saved: 'Saved',
+      dirty: 'Unsaved changes',
+      saving: 'Saving...',
+      error: 'Failed to save',
+      button: 'Save',
+    },
     sportLabel: 'Sport',
     layoutLabel: 'View',
     aspectLabel: 'Aspect',
