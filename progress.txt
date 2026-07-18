@@ -37,9 +37,10 @@ Phase 1: プロジェクト基盤
     - 初回ログイン時に users/{uid} ドキュメント作成(displayName, email, settings, plan)
     - ログアウト処理(設定画面に配置)
     - 注意: users書き込みはPhase1.6のセキュリティルール適用後に有効になる(fail-soft実装済み)
-[ ] Phase1.5 i18n基盤構築
-    - react-i18next導入、日本語/英語のリソースファイル骨組み
-    - 言語切替の仕組み(設定はusers.settings.languageに保存)
+[x] Phase1.5 i18n基盤構築 (2026-07-19)
+    - react-i18next導入、日本語/英語のリソースファイル(型安全な対訳)
+    - 設定画面に言語切替UI(localStorage+users.settings.languageに保存)
+    - 既存画面の文言をi18nリソースへ移行
 [ ] Phase1.6 Firestoreセキュリティルール作成
     - 自分のuid配下のみ読み書き可能なルール
     - firestore.rules ファイルとエミュレータでのルールテスト

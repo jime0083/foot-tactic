@@ -22,6 +22,15 @@ export const DEFAULT_USER_PLAN: UserPlan = {
   trialEndsAt: null,
 };
 
+/** ユーザーの言語設定をFirestoreに保存する */
+export async function updateUserLanguage(
+  uid: string,
+  language: UserSettings['language'],
+): Promise<void> {
+  const userRef = doc(db, 'users', uid);
+  await setDoc(userRef, { settings: { language } }, { merge: true });
+}
+
 /** 初回ログイン時にusers/{uid}ドキュメントを作成する(既存の場合は何もしない) */
 export async function ensureUserDocument(user: User): Promise<void> {
   const userRef = doc(db, 'users', user.uid);

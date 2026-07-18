@@ -1,15 +1,17 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router';
 import { isPopupCancelledError, signInWithGoogle } from './authService';
 import { useAuth } from './useAuth';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (loading) {
-    return <p role="status">読み込み中...</p>;
+    return <p role="status">{t('common.loading')}</p>;
   }
   if (user) {
     return <Navigate to="/projects" replace />;
@@ -24,7 +26,7 @@ export function LoginPage() {
     } catch (error) {
       if (!isPopupCancelledError(error)) {
         console.error('Googleログインに失敗しました', error);
-        setErrorMessage('ログインに失敗しました。時間をおいて再度お試しください。');
+        setErrorMessage(t('login.failed'));
       }
     } finally {
       setBusy(false);
@@ -33,11 +35,11 @@ export function LoginPage() {
 
   return (
     <main className="app">
-      <h1>foot-tactic</h1>
-      <p>サッカー戦術ボード + メモアプリ</p>
-      <p>利用にはGoogleアカウントでのログインが必要です</p>
+      <h1>{t('common.appName')}</h1>
+      <p>{t('common.appDescription')}</p>
+      <p>{t('login.requiresGoogle')}</p>
       <button type="button" onClick={handleLogin} disabled={busy}>
-        {busy ? 'ログイン中...' : 'Googleでログイン'}
+        {busy ? t('login.busy') : t('login.button')}
       </button>
       {errorMessage && <p role="alert">{errorMessage}</p>}
     </main>
