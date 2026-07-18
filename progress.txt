@@ -32,10 +32,11 @@ Phase 1: プロジェクト基盤
     - react-router v7導入。/login, /projects, /board/:projectId, /settings の4ルート
     - 未ログイン時は/loginへリダイレクトする認証ガード(RequireAuth)
     - ログイン済みで/loginアクセス時は/projectsへリダイレクト
-[ ] Phase1.4 Googleログイン/ログアウト実装
-    - ログイン画面UI(Googleログインボタン+サービス説明)
+[x] Phase1.4 Googleログイン/ログアウト実装 (2026-07-19)
+    - ログイン画面UI(Googleログインボタン+サービス説明+エラー表示)
     - 初回ログイン時に users/{uid} ドキュメント作成(displayName, email, settings, plan)
-    - ログアウト処理
+    - ログアウト処理(設定画面に配置)
+    - 注意: users書き込みはPhase1.6のセキュリティルール適用後に有効になる(fail-soft実装済み)
 [ ] Phase1.5 i18n基盤構築
     - react-i18next導入、日本語/英語のリソースファイル骨組み
     - 言語切替の仕組み(設定はusers.settings.languageに保存)

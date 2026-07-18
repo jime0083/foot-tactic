@@ -19,13 +19,13 @@ Work1: Firebase / Google Cloud 初期セットアップ
          messagingSenderId, appId)の値をAIに共有する(.envに設定するため)
     備考: 無料のSparkプランで開始可能(Cloud Functionsは使用しない構成)
 
-[ ] Work1.2 Firebase AuthenticationでGoogleプロバイダを有効化
+[x] Work1.2 Firebase AuthenticationでGoogleプロバイダを有効化 (2026-07-19 完了・スクリーンショット確認済み)
     期限: Phase1.4 開始まで
     手順:
       1. Firebaseコンソール > Authentication > ログイン方法
       2. 「Google」を有効化(サポートメールアドレスを選択して保存)
 
-[ ] Work1.3 Cloud Firestoreデータベース作成
+[x] Work1.3 Cloud Firestoreデータベース作成 (2026-07-19 完了・本番環境モード)
     期限: Phase1.4 開始まで
     手順:
       1. Firebaseコンソール > Firestore Database > 「データベースを作成」
