@@ -85,7 +85,7 @@ Work3: Googleドキュメント保存用のGoogle Cloud設定
 Work4: リリース関連
 =====================================================
 [ ] Work4.1 Firebase CLIのログイン認証
-    期限: Phase8.5 開始まで
+    期限: Phase9.5 開始まで
     手順:
       1. ターミナルで `firebase login` を実行しブラウザで認証
          (Claude Codeのセッション内なら「! firebase login」で実行可能)
