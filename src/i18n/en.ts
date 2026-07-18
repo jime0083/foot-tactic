@@ -43,6 +43,9 @@ export const en: TranslationResource = {
       freehand: 'Draw',
       continuous: 'Repeat',
     },
+    marker: {
+      size: 'Size',
+    },
     player: {
       team: 'Team',
       home: 'Home',

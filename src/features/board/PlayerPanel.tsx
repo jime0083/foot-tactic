@@ -26,6 +26,14 @@ export function PlayerPanel() {
   if (selected.type === 'ball') {
     return (
       <div className="object-panel">
+        <label>
+          {t('board.player.color')}
+          <input
+            type="color"
+            value={selected.color}
+            onChange={(event) => updateObject(selected.id, { color: event.target.value })}
+          />
+        </label>
         <button
           type="button"
           onClick={() => {
@@ -35,6 +43,33 @@ export function PlayerPanel() {
         >
           {t('board.player.faceBallAll')}
         </button>
+      </div>
+    );
+  }
+
+  if (selected.type === 'marker') {
+    return (
+      <div className="object-panel">
+        <label>
+          {t('board.player.color')}
+          <input
+            type="color"
+            value={selected.color}
+            onChange={(event) => updateObject(selected.id, { color: event.target.value })}
+          />
+        </label>
+        <label>
+          {t('board.marker.size')}
+          <input
+            type="range"
+            min={5}
+            max={25}
+            value={Math.round(selected.size * 10)}
+            onChange={(event) =>
+              updateObject(selected.id, { size: Number(event.target.value) / 10 })
+            }
+          />
+        </label>
       </div>
     );
   }

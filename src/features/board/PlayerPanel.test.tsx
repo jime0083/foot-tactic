@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PlayerPanel } from './PlayerPanel';
 import { createObjectAt } from './objects/createObject';
@@ -71,5 +71,26 @@ describe('PlayerPanel', () => {
 
     const slider = screen.getByLabelText('選手サイズ');
     expect(slider).toBeInTheDocument();
+  });
+
+  it('ボール選択時に色を変更できる', () => {
+    const ball = createObjectAt('ball', 50, 34) as BallObject;
+    useBoardStore.setState({ objects: [ball], selectedIds: [ball.id] });
+    render(<PlayerPanel />);
+
+    fireEvent.change(screen.getByLabelText('色'), { target: { value: '#ff8800' } });
+
+    expect((useBoardStore.getState().objects[0] as BallObject).color).toBe('#ff8800');
+  });
+
+  it('マーカー選択時に色とサイズを変更できる', () => {
+    const marker = createObjectAt('marker', 20, 20);
+    useBoardStore.setState({ objects: [marker], selectedIds: [marker.id] });
+    render(<PlayerPanel />);
+
+    fireEvent.change(screen.getByLabelText('サイズ'), { target: { value: '20' } });
+
+    const updated = useBoardStore.getState().objects[0];
+    expect(updated.type === 'marker' && updated.size).toBe(2);
   });
 });

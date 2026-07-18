@@ -34,6 +34,9 @@ export const ja = {
       freehand: '手書き',
       continuous: '連続配置',
     },
+    marker: {
+      size: 'サイズ',
+    },
     player: {
       team: 'チーム',
       home: 'ホーム',

@@ -1,5 +1,5 @@
 import type Konva from 'konva';
-import { Circle, Group, Line, Rect, Text } from 'react-konva';
+import { Circle, Group, Line, Rect, RegularPolygon, Text } from 'react-konva';
 import { useBoardStore } from '@/stores/boardStore';
 import { withOpacity } from './objectStyles';
 import { angleToPoint } from './playerActions';
@@ -56,25 +56,26 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
       );
     case 'ball':
       return (
-        <Circle
-          x={object.x}
-          y={object.y}
-          radius={0.5}
-          fill={object.color}
-          stroke={selected ? '#00e5ff' : '#000000'}
-          strokeWidth={selected ? 0.15 : 0.08}
-          {...common}
-        />
+        <Group x={object.x} y={object.y} {...common}>
+          <Circle
+            radius={0.5}
+            fill={object.color}
+            stroke={selected ? '#00e5ff' : '#000000'}
+            strokeWidth={selected ? 0.15 : 0.08}
+          />
+          <RegularPolygon sides={5} radius={0.22} fill="#000000" listening={false} />
+        </Group>
       );
     case 'marker':
+      // トレーニング用のフラットマーカー(リング)として描画する
       return (
         <Circle
           x={object.x}
           y={object.y}
-          radius={object.size * 0.6}
-          fill={object.color}
-          stroke={selected ? '#00e5ff' : '#00000055'}
-          strokeWidth={selected ? 0.15 : 0.06}
+          radius={object.size * 0.55}
+          stroke={selected ? '#00e5ff' : object.color}
+          strokeWidth={object.size * 0.28}
+          hitStrokeWidth={object.size}
           {...common}
         />
       );
