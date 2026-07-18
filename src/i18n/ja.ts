@@ -37,6 +37,10 @@ export const ja = {
     marker: {
       size: 'サイズ',
     },
+    text: {
+      content: 'テキスト',
+      fontSize: '文字サイズ',
+    },
     player: {
       team: 'チーム',
       home: 'ホーム',

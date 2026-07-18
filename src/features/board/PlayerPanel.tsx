@@ -74,6 +74,42 @@ export function PlayerPanel() {
     );
   }
 
+  if (selected.type === 'text') {
+    return (
+      <div className="object-panel">
+        <label>
+          {t('board.text.content')}
+          <input
+            type="text"
+            maxLength={100}
+            value={selected.text}
+            onChange={(event) => updateObject(selected.id, { text: event.target.value })}
+          />
+        </label>
+        <label>
+          {t('board.player.color')}
+          <input
+            type="color"
+            value={selected.color}
+            onChange={(event) => updateObject(selected.id, { color: event.target.value })}
+          />
+        </label>
+        <label>
+          {t('board.text.fontSize')}
+          <input
+            type="range"
+            min={10}
+            max={60}
+            value={Math.round(selected.fontSize * 10)}
+            onChange={(event) =>
+              updateObject(selected.id, { fontSize: Number(event.target.value) / 10 })
+            }
+          />
+        </label>
+      </div>
+    );
+  }
+
   if (selected.type !== 'player') {
     return null;
   }

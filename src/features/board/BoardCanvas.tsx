@@ -17,7 +17,9 @@ import { FIELD_SPECS } from './field/fieldSpec';
 import { BoardObjects } from './objects/BoardObjects';
 import { createObjectAt } from './objects/createObject';
 import {
+  appendFreehandPoint,
   buildDragShape,
+  buildFreehandShape,
   buildVertexShape,
   type DragShapeType,
   type VertexShapeType,
@@ -29,10 +31,11 @@ const FIELD_PADDING_METERS = 4;
 const DRAG_SHAPE_TYPES: DragShapeType[] = ['line', 'circle', 'rect'];
 const VERTEX_SHAPE_TYPES: VertexShapeType[] = ['polygon', 'polyline'];
 
-/** 作成途中の図形(ドラッグ中/頂点追加中) */
+/** 作成途中の図形(ドラッグ中/頂点追加中/手書き中) */
 type Draft =
   | { kind: 'drag'; type: DragShapeType; start: Point; current: Point }
-  | { kind: 'vertices'; type: VertexShapeType; vertices: Point[]; current: Point | null };
+  | { kind: 'vertices'; type: VertexShapeType; vertices: Point[]; current: Point | null }
+  | { kind: 'freehand'; trace: Point[] };
 
 /** 作成途中の図形のプレビュー描画 */
 function DraftPreview({ draft }: { draft: Draft }) {
@@ -61,6 +64,17 @@ function DraftPreview({ draft }: { draft: Draft }) {
       );
     }
     return <Line points={[start.x, start.y, current.x, current.y]} {...previewProps} />;
+  }
+  if (draft.kind === 'freehand') {
+    return (
+      <Line
+        points={draft.trace.flatMap((point) => [point.x, point.y])}
+        stroke="#ffffffaa"
+        strokeWidth={0.25}
+        lineCap="round"
+        lineJoin="round"
+      />
+    );
   }
   const points = draft.vertices.flatMap((vertex) => [vertex.x, vertex.y]);
   if (draft.current) {
@@ -165,12 +179,20 @@ export function BoardCanvas() {
       });
       return;
     }
+    if (currentTool === 'freehand') {
+      setDraft({ kind: 'freehand', trace: [toFieldPoint(event)] });
+      return;
+    }
     activePointers.current.set(event.pointerId, toLocalPoint(event));
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (draft) {
       const fieldPoint = toFieldPoint(event);
+      if (draft.kind === 'freehand') {
+        setDraft({ kind: 'freehand', trace: appendFreehandPoint(draft.trace, fieldPoint) });
+        return;
+      }
       setDraft(
         draft.kind === 'drag'
           ? { ...draft, current: fieldPoint }
@@ -227,6 +249,18 @@ export function BoardCanvas() {
       addObject(buildDragShape(draft.type, draft.start, toFieldPoint(event)));
       setDraft(null);
       if (!continuousPlacement) {
+        setTool('select');
+      }
+      return;
+    }
+    if (draft?.kind === 'freehand') {
+      const { addObject, setTool, continuousPlacement } = useBoardStore.getState();
+      const object = buildFreehandShape(draft.trace);
+      if (object) {
+        addObject(object);
+      }
+      setDraft(null);
+      if (object && !continuousPlacement) {
         setTool('select');
       }
       return;

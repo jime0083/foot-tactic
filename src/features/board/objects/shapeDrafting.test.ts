@@ -1,4 +1,10 @@
-import { buildDragShape, buildVertexShape, dedupeVertices } from './shapeDrafting';
+import {
+  appendFreehandPoint,
+  buildDragShape,
+  buildFreehandShape,
+  buildVertexShape,
+  dedupeVertices,
+} from './shapeDrafting';
 
 describe('buildDragShape', () => {
   it('ドラッグ距離からラインを生成する', () => {
@@ -73,5 +79,36 @@ describe('buildVertexShape', () => {
       { x: 10.05, y: 5.05 },
     ]);
     expect(object).toMatchObject({ points: [0, 0, 10, 5] });
+  });
+});
+
+describe('appendFreehandPoint', () => {
+  it('一定距離以上離れた点だけを追加する', () => {
+    const points = [{ x: 0, y: 0 }];
+    const unchanged = appendFreehandPoint(points, { x: 0.05, y: 0.05 });
+    expect(unchanged).toHaveLength(1);
+
+    const appended = appendFreehandPoint(points, { x: 1, y: 1 });
+    expect(appended).toHaveLength(2);
+  });
+});
+
+describe('buildFreehandShape', () => {
+  it('軌跡から相対座標のフリーハンドを生成する', () => {
+    const object = buildFreehandShape([
+      { x: 10, y: 10 },
+      { x: 12, y: 11 },
+      { x: 15, y: 9 },
+    ]);
+    expect(object).toMatchObject({
+      type: 'freehand',
+      x: 10,
+      y: 10,
+      points: [0, 0, 2, 1, 5, -1],
+    });
+  });
+
+  it('点が2未満の場合はnullを返す', () => {
+    expect(buildFreehandShape([{ x: 0, y: 0 }])).toBeNull();
   });
 });

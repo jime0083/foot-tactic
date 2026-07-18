@@ -46,6 +46,10 @@ export const en: TranslationResource = {
     marker: {
       size: 'Size',
     },
+    text: {
+      content: 'Text',
+      fontSize: 'Font size',
+    },
     player: {
       team: 'Team',
       home: 'Home',

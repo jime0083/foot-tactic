@@ -49,6 +49,33 @@ export function dedupeVertices(vertices: Point[]): Point[] {
   });
 }
 
+/** 手書き軌跡に点を追加する(直前の点から一定距離未満は間引く) */
+export const FREEHAND_MIN_STEP_METERS = 0.15;
+
+export function appendFreehandPoint(points: Point[], point: Point): Point[] {
+  const last = points[points.length - 1];
+  if (last && Math.hypot(point.x - last.x, point.y - last.y) < FREEHAND_MIN_STEP_METERS) {
+    return points;
+  }
+  return [...points, point];
+}
+
+/** 手書き軌跡からフリーハンドオブジェクトを生成する。点が2未満ならnull */
+export function buildFreehandShape(trace: Point[]): BoardObject | null {
+  if (trace.length < 2) {
+    return null;
+  }
+  const [origin, ...rest] = trace;
+  const base = createObjectAt('freehand', origin.x, origin.y);
+  if (base.type !== 'freehand') {
+    return null;
+  }
+  return {
+    ...base,
+    points: [0, 0, ...rest.flatMap((point) => [point.x - origin.x, point.y - origin.y])],
+  };
+}
+
 /**
  * クリックで集めた頂点列からポリゴン/ポリラインを生成する。
  * 頂点数が不足している場合(ポリゴン3未満/ポリライン2未満)はnullを返す。

@@ -83,6 +83,19 @@ describe('PlayerPanel', () => {
     expect((useBoardStore.getState().objects[0] as BallObject).color).toBe('#ff8800');
   });
 
+  it('テキスト選択時に内容と文字サイズを変更できる', () => {
+    const text = createObjectAt('text', 30, 30);
+    useBoardStore.setState({ objects: [text], selectedIds: [text.id] });
+    render(<PlayerPanel />);
+
+    fireEvent.change(screen.getByLabelText('テキスト'), { target: { value: 'プレス開始' } });
+    fireEvent.change(screen.getByLabelText('文字サイズ'), { target: { value: '40' } });
+
+    const updated = useBoardStore.getState().objects[0];
+    expect(updated.type === 'text' && updated.text).toBe('プレス開始');
+    expect(updated.type === 'text' && updated.fontSize).toBe(4);
+  });
+
   it('マーカー選択時に色とサイズを変更できる', () => {
     const marker = createObjectAt('marker', 20, 20);
     useBoardStore.setState({ objects: [marker], selectedIds: [marker.id] });
