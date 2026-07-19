@@ -25,6 +25,13 @@ vi.mock('@/features/projects/projectService', () => ({
   updateProjectMeta: vi.fn(),
 }));
 
+vi.mock('@/features/memo/memoService', () => ({
+  listMemos: vi.fn(async () => []),
+  addMemo: vi.fn(),
+  updateMemo: vi.fn(),
+  deleteMemo: vi.fn(),
+}));
+
 function renderWithAuth(state: AuthState, initialPath: string) {
   return render(
     <AuthContext.Provider value={state}>

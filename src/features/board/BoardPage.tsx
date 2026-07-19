@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { useAuth } from '@/features/auth/useAuth';
+import { MemoArea } from '@/features/memo/MemoArea';
 import { loadBoardSnapshot } from '@/features/projects/boardSnapshot';
 import { loadProject } from '@/features/projects/projectService';
 import { BoardCanvas } from './BoardCanvas';
@@ -119,7 +120,7 @@ export function BoardPage() {
       <PlayerPanel />
       <BoardCanvas />
       <SceneStrip />
-      {/* メモエリアはPhase5.1で実装 */}
+      {user && projectId && <MemoArea uid={user.uid} projectId={projectId} />}
     </main>
   );
 }
