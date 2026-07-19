@@ -1,13 +1,12 @@
 import { getActiveApiKey, type AiSettings } from './aiSettings';
 import { TranscriptionError } from './errors';
+import { transcribeWithGemini } from './geminiTranscribe';
 import { transcribeWithOpenAI } from './openaiTranscribe';
 
-/** プロバイダ別の文字起こし実装(Geminiは Phase6.4 で追加) */
+/** プロバイダ別の文字起こし実装 */
 const providers: Record<AiSettings['provider'], (audio: Blob, key: string) => Promise<string>> = {
   openai: transcribeWithOpenAI,
-  gemini: () => {
-    throw new TranscriptionError('other', 'Gemini連携はPhase6.4で実装予定です');
-  },
+  gemini: transcribeWithGemini,
 };
 
 /** 選択中のプロバイダで音声を文字起こしする */

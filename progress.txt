@@ -176,8 +176,10 @@ Phase 6: AI音声文字起こし
     - OpenAI Audio API(whisper-1)への直接送信処理を実装
     - エラー分類(auth/quota/network/other)とプロバイダディスパッチャ
     - ルール通りテスト作成・実キー検証なし(型チェックのみ通過)
-[ ] Phase6.4 Gemini文字起こし連携
-    - 録音音声をGemini APIへ直接送信、エラーハンドリング
+[x] Phase6.4 Gemini文字起こし連携 (2026-07-20)
+    - 録音音声をGemini API(gemini-2.0-flash、inline_data)へ直接送信
+    - エラー分類(auth/quota/network/other)、ディスパッチャ統合、テスト計264件
+    - ※実際のマイク録音→Gemini APIでの動作検証はPhase6完了時にユーザー確認
 [ ] Phase6.5 文字起こし結果の挿入フロー
     - プレビュー表示→採用/編集/破棄
     - 採用時に新規メモエントリ(source=voice)として挿入、タグ付与可能
