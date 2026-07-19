@@ -60,6 +60,12 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(bob, 'users/alice/projects/p1'), { title: 'hack' }));
   });
 
+  it('他人のmemosサブコレクションは読み書きできない', async () => {
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    await assertFails(getDoc(doc(bob, 'users/alice/projects/p1/memos/m1')));
+    await assertFails(setDoc(doc(bob, 'users/alice/projects/p1/memos/m1'), { text: 'hack' }));
+  });
+
   it('未ログインでは一切読み書きできない', async () => {
     const anonymous = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(anonymous, 'users/alice')));
