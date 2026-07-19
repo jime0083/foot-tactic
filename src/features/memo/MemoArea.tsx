@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { loadAiSettings } from '@/features/transcription/aiSettings';
+import { TranscriptionError } from '@/features/transcription/errors';
+import { transcribeAudio } from '@/features/transcription/transcribe';
 import { addMemo, deleteMemo, listMemos, updateMemo } from './memoService';
 import { collectMemoTags, filterMemosByTag } from './memoTags';
 import { MEMO_TEXT_MAX_LENGTH, type Memo } from './memoTypes';
 import { TagEditor } from './TagEditor';
 import { VoiceRecorderButton } from './VoiceRecorderButton';
+
+/** 音声メモの文字起こしフロー状態 */
+type VoiceState =
+  | { status: 'transcribing' }
+  | { status: 'preview'; text: string }
+  | { status: 'error'; messageKey: string };
 
 interface MemoAreaProps {
   uid: string;
@@ -104,6 +113,8 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
   const [newTags, setNewTags] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [voiceState, setVoiceState] = useState<VoiceState | null>(null);
+  const [voiceTags, setVoiceTags] = useState<string[]>([]);
   const tagSuggestions = collectMemoTags(memos ?? []);
 
   useEffect(() => {
@@ -169,6 +180,41 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
       );
     } catch (error) {
       console.error('メモのタグ更新に失敗しました', error);
+      setErrorMessage(t('memo.saveFailed'));
+    }
+  };
+
+  /** 録音した音声を文字起こしし、プレビューへ進める */
+  const handleAudioReady = async (audio: Blob) => {
+    setVoiceState({ status: 'transcribing' });
+    try {
+      const text = await transcribeAudio(audio, loadAiSettings());
+      setVoiceState({ status: 'preview', text });
+      setVoiceTags([]);
+    } catch (error) {
+      console.error('文字起こしに失敗しました', error);
+      const kind = error instanceof TranscriptionError ? error.kind : 'other';
+      setVoiceState({ status: 'error', messageKey: `memo.voice.${kind}Error` });
+    }
+  };
+
+  /** プレビュー中の文字起こし結果を音声メモとして採用する */
+  const handleAdoptVoice = async () => {
+    if (voiceState?.status !== 'preview' || voiceState.text.trim() === '') {
+      return;
+    }
+    setErrorMessage(null);
+    try {
+      const memo = await addMemo(uid, projectId, {
+        text: voiceState.text,
+        tags: voiceTags,
+        source: 'voice',
+      });
+      setMemos((current) => [...(current ?? []), memo]);
+      setVoiceState(null);
+      setVoiceTags([]);
+    } catch (error) {
+      console.error('音声メモの保存に失敗しました', error);
       setErrorMessage(t('memo.saveFailed'));
     }
   };
@@ -253,12 +299,59 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
                 {t('memo.add')}
               </button>
               <VoiceRecorderButton
-                onAudioReady={() => {
-                  // 文字起こし→プレビュー挿入フローはPhase6.5で実装
-                }}
+                onAudioReady={handleAudioReady}
+                disabled={voiceState?.status === 'transcribing'}
               />
             </div>
           </div>
+          {voiceState?.status === 'transcribing' && (
+            <p role="status">{t('memo.voice.transcribing')}</p>
+          )}
+          {voiceState?.status === 'error' && (
+            <p role="alert">
+              {t(voiceState.messageKey)}{' '}
+              <button type="button" onClick={() => setVoiceState(null)}>
+                {t('memo.voice.dismiss')}
+              </button>
+            </p>
+          )}
+          {voiceState?.status === 'preview' && (
+            <div className="voice-preview">
+              <h3>{t('memo.voice.previewTitle')}</h3>
+              <textarea
+                rows={3}
+                maxLength={MEMO_TEXT_MAX_LENGTH}
+                value={voiceState.text}
+                aria-label={t('memo.voice.previewTitle')}
+                onChange={(event) => setVoiceState({ status: 'preview', text: event.target.value })}
+              />
+              <TagEditor
+                tags={voiceTags}
+                suggestions={tagSuggestions}
+                label={t('memo.voice.previewTitle')}
+                onAdd={(tag) => setVoiceTags((current) => [...current, tag])}
+                onRemove={(tag) => setVoiceTags((current) => current.filter((v) => v !== tag))}
+              />
+              <div className="voice-preview__actions">
+                <button
+                  type="button"
+                  onClick={() => void handleAdoptVoice()}
+                  disabled={voiceState.text.trim() === ''}
+                >
+                  {t('memo.voice.adopt')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVoiceState(null);
+                    setVoiceTags([]);
+                  }}
+                >
+                  {t('memo.voice.discard')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>

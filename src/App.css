@@ -388,6 +388,30 @@
   color: #e53935;
 }
 
+.voice-preview {
+  margin-top: 0.6rem;
+  border: 1px dashed rgba(128, 128, 128, 0.5);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+.voice-preview h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+}
+
+.voice-preview textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+}
+
+.voice-preview__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
 .memo-area__empty {
   font-size: 0.85rem;
   opacity: 0.75;
