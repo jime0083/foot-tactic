@@ -172,11 +172,10 @@ Phase 6: AI音声文字起こし
     - MediaRecorderによる録音フック+録音ボタン(録音中表示、停止)
     - マイク権限拒否/非対応ブラウザのエラー表示
     - APIキー未登録時は設定画面へ誘導(リンク表示)
-[ ] Phase6.3 OpenAI文字起こし連携【実装のみ・テスト対象外】
-    - 録音音声をOpenAI Audio API(gpt-4o-transcribe/Whisper)へ直接送信する処理の実装
-    - 認証エラー/ネットワークエラーのハンドリング(日/英)
-    - ※APIキーが用意できないため、テスト作成・実キーでの動作検証は行わない
-    - ※型チェック(npx tsc --noEmit)のみ通すこと。動作検証はPhase6.4のGeminiで行う
+[x] Phase6.3 OpenAI文字起こし連携【実装のみ・テスト対象外】 (2026-07-20)
+    - OpenAI Audio API(whisper-1)への直接送信処理を実装
+    - エラー分類(auth/quota/network/other)とプロバイダディスパッチャ
+    - ルール通りテスト作成・実キー検証なし(型チェックのみ通過)
 [ ] Phase6.4 Gemini文字起こし連携
     - 録音音声をGemini APIへ直接送信、エラーハンドリング
 [ ] Phase6.5 文字起こし結果の挿入フロー
