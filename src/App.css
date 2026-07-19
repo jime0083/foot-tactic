@@ -420,6 +420,38 @@
   font-size: 0.75rem;
 }
 
+.ai-settings {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.ai-settings h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.ai-settings__note {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  max-width: 32rem;
+  margin: 0;
+}
+
+.ai-settings label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.ai-settings input[type='password'],
+.ai-settings input[type='text'] {
+  min-width: 18rem;
+}
+
 .field-color-panel {
   position: relative;
 }

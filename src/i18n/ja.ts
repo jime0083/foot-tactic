@@ -187,5 +187,17 @@ export const ja = {
     logout: 'ログアウト',
     logoutFailed: 'ログアウトに失敗しました。再度お試しください。',
     deleteAccount: 'アカウント削除',
+    ai: {
+      title: 'AI音声文字起こし',
+      provider: 'AIプロバイダ',
+      geminiKey: 'Gemini APIキー',
+      openaiKey: 'OpenAI APIキー',
+      keyPlaceholder: 'APIキーを入力',
+      showKeys: 'キーを表示',
+      localOnlyNote:
+        'APIキーはこの端末のブラウザにのみ保存され、サーバーには一切送信・保存されません。別の端末では再度入力が必要です。',
+      billingNote:
+        '文字起こしの利用料は、登録したAPIキーに紐づくご自身のAIアカウントに課金されます。',
+    },
   },
 } as const;

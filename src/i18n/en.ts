@@ -197,5 +197,17 @@ export const en: TranslationResource = {
     logout: 'Sign out',
     logoutFailed: 'Sign-out failed. Please try again.',
     deleteAccount: 'Delete account',
+    ai: {
+      title: 'AI voice transcription',
+      provider: 'AI provider',
+      geminiKey: 'Gemini API key',
+      openaiKey: 'OpenAI API key',
+      keyPlaceholder: 'Enter API key',
+      showKeys: 'Show keys',
+      localOnlyNote:
+        'API keys are stored only in this browser and are never sent to or stored on our servers. You will need to re-enter them on other devices.',
+      billingNote:
+        'Transcription usage is billed to your own AI account associated with the registered API key.',
+    },
   },
 };

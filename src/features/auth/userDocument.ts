@@ -22,6 +22,15 @@ export const DEFAULT_USER_PLAN: UserPlan = {
   trialEndsAt: null,
 };
 
+/** ユーザーのAIプロバイダ設定をFirestoreに保存する(APIキーは保存しない) */
+export async function updateUserAiProvider(
+  uid: string,
+  aiProvider: UserSettings['aiProvider'],
+): Promise<void> {
+  const userRef = doc(db, 'users', uid);
+  await setDoc(userRef, { settings: { aiProvider } }, { merge: true });
+}
+
 /** ユーザーの言語設定をFirestoreに保存する */
 export async function updateUserLanguage(
   uid: string,

@@ -164,9 +164,9 @@ Phase 6: AI音声文字起こし
 =====================================================
 ※着手前提: Work2.1 Gemini APIキー(Phase6.4まで)
 ※OpenAI APIキーは用意できないため、Phase6.3は「実装のみ」でテスト・動作検証を行わない
-[ ] Phase6.1 AI設定画面
-    - プロバイダ選択(OpenAI / Gemini)
-    - APIキー登録UI(localStorageのみに保存、サーバー非送信の明示、キーのマスク表示)
+[x] Phase6.1 AI設定画面 (2026-07-20)
+    - プロバイダ選択(Gemini既定/OpenAI)、選択はFirestore users.settings.aiProviderにも同期
+    - APIキー登録UI(localStorageのみに保存、サーバー非送信の明示、マスク表示+表示切替)
     - 利用料はユーザーのAPIアカウントに課金される旨の注意文言(日/英)
 [ ] Phase6.2 録音機能
     - MediaRecorderによる録音ボタン(録音中表示、停止)

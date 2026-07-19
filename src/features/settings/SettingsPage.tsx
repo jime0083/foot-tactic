@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LanguageSelect } from '@/components/LanguageSelect';
+import { AiSettingsSection } from './AiSettingsSection';
 
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -10,7 +11,7 @@ export function SettingsPage() {
       <section>
         <LanguageSelect />
       </section>
-      {/* AIプロバイダ・APIキー設定はPhase6.1で実装 */}
+      <AiSettingsSection />
       <section>
         {/* アカウント削除の実処理はPhase9.3で実装 */}
         <button type="button" disabled>
