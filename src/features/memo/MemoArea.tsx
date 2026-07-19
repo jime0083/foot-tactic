@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { addMemo, deleteMemo, listMemos, updateMemo } from './memoService';
+import { collectMemoTags, filterMemosByTag } from './memoTags';
 import { MEMO_TEXT_MAX_LENGTH, type Memo } from './memoTypes';
+import { TagEditor } from './TagEditor';
 
 interface MemoAreaProps {
   uid: string;
@@ -11,11 +13,15 @@ interface MemoAreaProps {
 /** メモ1件の表示・編集・削除 */
 function MemoEntry({
   memo,
+  tagSuggestions,
   onUpdate,
+  onUpdateTags,
   onDelete,
 }: {
   memo: Memo;
+  tagSuggestions: string[];
   onUpdate: (memoId: string, text: string) => Promise<void>;
+  onUpdateTags: (memoId: string, tags: string[]) => Promise<void>;
   onDelete: (memoId: string) => Promise<void>;
 }) {
   const { t, i18n } = useTranslation();
@@ -72,6 +78,18 @@ function MemoEntry({
       ) : (
         <p className="memo-entry__text">{memo.text}</p>
       )}
+      <TagEditor
+        tags={memo.tags}
+        suggestions={tagSuggestions}
+        label={memo.text.slice(0, 20)}
+        onAdd={(tag) => void onUpdateTags(memo.id, [...memo.tags, tag])}
+        onRemove={(tag) =>
+          void onUpdateTags(
+            memo.id,
+            memo.tags.filter((existing) => existing !== tag),
+          )
+        }
+      />
     </li>
   );
 }
@@ -82,7 +100,10 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [memos, setMemos] = useState<Memo[] | null>(null);
   const [newText, setNewText] = useState('');
+  const [newTags, setNewTags] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const tagSuggestions = collectMemoTags(memos ?? []);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,9 +130,10 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
     }
     setErrorMessage(null);
     try {
-      const memo = await addMemo(uid, projectId, { text: newText });
+      const memo = await addMemo(uid, projectId, { text: newText, tags: newTags });
       setMemos((current) => [...(current ?? []), memo]);
       setNewText('');
+      setNewTags([]);
     } catch (error) {
       console.error('メモの追加に失敗しました', error);
       setErrorMessage(t('memo.saveFailed'));
@@ -130,6 +152,22 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
       );
     } catch (error) {
       console.error('メモの更新に失敗しました', error);
+      setErrorMessage(t('memo.saveFailed'));
+    }
+  };
+
+  const handleUpdateTags = async (memoId: string, tags: string[]) => {
+    setErrorMessage(null);
+    try {
+      await updateMemo(uid, projectId, memoId, { tags });
+      setMemos(
+        (current) =>
+          current?.map((memo) =>
+            memo.id === memoId ? { ...memo, tags, updatedAt: Date.now() } : memo,
+          ) ?? null,
+      );
+    } catch (error) {
+      console.error('メモのタグ更新に失敗しました', error);
       setErrorMessage(t('memo.saveFailed'));
     }
   };
@@ -156,31 +194,55 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
       {!collapsed && (
         <div className="memo-area__body">
           {errorMessage && <p role="alert">{errorMessage}</p>}
+          {tagSuggestions.length > 0 && (
+            <label className="memo-area__filter">
+              {t('memo.tagFilter')}
+              <select value={tagFilter} onChange={(event) => setTagFilter(event.target.value)}>
+                <option value="">{t('memo.allTags')}</option>
+                {tagSuggestions.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           {memos === null ? (
             <p role="status">{t('common.loading')}</p>
           ) : memos.length === 0 ? (
             <p className="memo-area__empty">{t('memo.empty')}</p>
           ) : (
             <ul className="memo-area__list">
-              {memos.map((memo) => (
+              {filterMemosByTag(memos, tagFilter).map((memo) => (
                 <MemoEntry
                   key={memo.id}
                   memo={memo}
+                  tagSuggestions={tagSuggestions}
                   onUpdate={handleUpdate}
+                  onUpdateTags={handleUpdateTags}
                   onDelete={handleDelete}
                 />
               ))}
             </ul>
           )}
           <div className="memo-area__form">
-            <textarea
-              rows={2}
-              maxLength={MEMO_TEXT_MAX_LENGTH}
-              value={newText}
-              placeholder={t('memo.placeholder')}
-              aria-label={t('memo.placeholder')}
-              onChange={(event) => setNewText(event.target.value)}
-            />
+            <div className="memo-area__form-main">
+              <textarea
+                rows={2}
+                maxLength={MEMO_TEXT_MAX_LENGTH}
+                value={newText}
+                placeholder={t('memo.placeholder')}
+                aria-label={t('memo.placeholder')}
+                onChange={(event) => setNewText(event.target.value)}
+              />
+              <TagEditor
+                tags={newTags}
+                suggestions={tagSuggestions}
+                label={t('memo.newMemo')}
+                onAdd={(tag) => setNewTags((current) => [...current, tag])}
+                onRemove={(tag) => setNewTags((current) => current.filter((v) => v !== tag))}
+              />
+            </div>
             <button type="button" onClick={() => void handleAdd()} disabled={newText.trim() === ''}>
               {t('memo.add')}
             </button>

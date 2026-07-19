@@ -374,6 +374,52 @@
   opacity: 0.75;
 }
 
+.memo-area__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.memo-area__form-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tag-editor {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+}
+
+.tag-editor__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(3, 169, 244, 0.18);
+}
+
+.tag-editor__chip button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0 0.1rem;
+  color: inherit;
+}
+
+.tag-editor__input {
+  width: 9rem;
+  font-size: 0.75rem;
+}
+
 .field-color-panel {
   position: relative;
 }

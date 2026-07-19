@@ -16,7 +16,7 @@ const sampleMemos: Memo[] = [
   {
     id: 'm1',
     text: '前半15分、右サイドから決定機',
-    tags: [],
+    tags: ['決定機シーン'],
     source: 'manual',
     createdAt: 1000,
     updatedAt: 1000,
@@ -24,7 +24,7 @@ const sampleMemos: Memo[] = [
   {
     id: 'm2',
     text: '相手は4-4-2でブロックを作る',
-    tags: [],
+    tags: ['フォーメーション'],
     source: 'manual',
     createdAt: 2000,
     updatedAt: 2000,
@@ -68,7 +68,7 @@ describe('MemoArea', () => {
     await userEvent.type(screen.getByLabelText(/メモを入力/), '後半から3バックへ変更');
     await userEvent.click(screen.getByRole('button', { name: '追加' }));
 
-    expect(addMemo).toHaveBeenCalledWith('u1', 'p1', { text: '後半から3バックへ変更' });
+    expect(addMemo).toHaveBeenCalledWith('u1', 'p1', { text: '後半から3バックへ変更', tags: [] });
     expect(await screen.findByText('後半から3バックへ変更')).toBeInTheDocument();
   });
 
@@ -104,6 +104,61 @@ describe('MemoArea', () => {
 
     expect(deleteMemo).toHaveBeenCalledWith('u1', 'p1', 'm1');
     expect(screen.queryByText('前半15分、右サイドから決定機')).not.toBeInTheDocument();
+  });
+
+  it('タグで絞り込める', async () => {
+    renderMemoArea();
+    await screen.findByText('前半15分、右サイドから決定機');
+
+    await userEvent.selectOptions(screen.getByLabelText('タグで絞り込み'), 'フォーメーション');
+
+    expect(screen.queryByText('前半15分、右サイドから決定機')).not.toBeInTheDocument();
+    expect(screen.getByText('相手は4-4-2でブロックを作る')).toBeInTheDocument();
+  });
+
+  it('メモにタグを追加できる', async () => {
+    (updateMemo as Mock).mockResolvedValue(undefined);
+    renderMemoArea();
+    await screen.findByText('前半15分、右サイドから決定機');
+
+    const tagInput = screen.getByLabelText('タグを追加: 前半15分、右サイドから決定機');
+    await userEvent.type(tagInput, '前半{enter}');
+
+    expect(updateMemo).toHaveBeenCalledWith('u1', 'p1', 'm1', {
+      tags: ['決定機シーン', '前半'],
+    });
+  });
+
+  it('メモのタグを削除できる', async () => {
+    (updateMemo as Mock).mockResolvedValue(undefined);
+    renderMemoArea();
+    await screen.findByText('前半15分、右サイドから決定機');
+
+    await userEvent.click(screen.getByRole('button', { name: 'タグを削除: 決定機シーン' }));
+
+    expect(updateMemo).toHaveBeenCalledWith('u1', 'p1', 'm1', { tags: [] });
+  });
+
+  it('新規メモにタグを付けて追加できる', async () => {
+    (addMemo as Mock).mockResolvedValue({
+      id: 'm3',
+      text: '後半から3バックへ変更',
+      tags: ['フォーメーション'],
+      source: 'manual',
+      createdAt: 3000,
+      updatedAt: 3000,
+    });
+    renderMemoArea();
+    await screen.findByText('前半15分、右サイドから決定機');
+
+    await userEvent.type(screen.getByLabelText(/メモを入力/), '後半から3バックへ変更');
+    await userEvent.type(screen.getByLabelText('タグを追加: 新規メモ'), 'フォーメーション{enter}');
+    await userEvent.click(screen.getByRole('button', { name: '追加' }));
+
+    expect(addMemo).toHaveBeenCalledWith('u1', 'p1', {
+      text: '後半から3バックへ変更',
+      tags: ['フォーメーション'],
+    });
   });
 
   it('折りたたみで本文が非表示になる', async () => {
