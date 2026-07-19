@@ -4,6 +4,7 @@ import { addMemo, deleteMemo, listMemos, updateMemo } from './memoService';
 import { collectMemoTags, filterMemosByTag } from './memoTags';
 import { MEMO_TEXT_MAX_LENGTH, type Memo } from './memoTypes';
 import { TagEditor } from './TagEditor';
+import { VoiceRecorderButton } from './VoiceRecorderButton';
 
 interface MemoAreaProps {
   uid: string;
@@ -243,9 +244,20 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
                 onRemove={(tag) => setNewTags((current) => current.filter((v) => v !== tag))}
               />
             </div>
-            <button type="button" onClick={() => void handleAdd()} disabled={newText.trim() === ''}>
-              {t('memo.add')}
-            </button>
+            <div className="memo-area__form-buttons">
+              <button
+                type="button"
+                onClick={() => void handleAdd()}
+                disabled={newText.trim() === ''}
+              >
+                {t('memo.add')}
+              </button>
+              <VoiceRecorderButton
+                onAudioReady={() => {
+                  // 文字起こし→プレビュー挿入フローはPhase6.5で実装
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

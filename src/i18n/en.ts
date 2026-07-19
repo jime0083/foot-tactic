@@ -187,6 +187,17 @@ export const en: TranslationResource = {
     tagFilter: 'Filter by tag',
     allTags: 'All',
     newMemo: 'New note',
+    voice: {
+      record: '🎤 Voice note',
+      stop: '■ Stop',
+      recording: 'Recording...',
+      keyMissing: 'No AI API key registered. Please add one in Settings.',
+      goSettings: 'Open Settings',
+      permissionDenied:
+        'Microphone access is not allowed. Please allow microphone use in your browser settings.',
+      unsupported: 'Recording is not supported in this browser.',
+      failed: 'Failed to start recording. Please try again.',
+    },
     loadFailed: 'Failed to load notes.',
     saveFailed: 'Failed to save the note.',
     deleteFailed: 'Failed to delete the note.',

@@ -168,10 +168,10 @@ Phase 6: AI音声文字起こし
     - プロバイダ選択(Gemini既定/OpenAI)、選択はFirestore users.settings.aiProviderにも同期
     - APIキー登録UI(localStorageのみに保存、サーバー非送信の明示、マスク表示+表示切替)
     - 利用料はユーザーのAPIアカウントに課金される旨の注意文言(日/英)
-[ ] Phase6.2 録音機能
-    - MediaRecorderによる録音ボタン(録音中表示、停止)
-    - マイク権限拒否時のエラー表示
-    - APIキー未登録時は設定画面へ誘導
+[x] Phase6.2 録音機能 (2026-07-20)
+    - MediaRecorderによる録音フック+録音ボタン(録音中表示、停止)
+    - マイク権限拒否/非対応ブラウザのエラー表示
+    - APIキー未登録時は設定画面へ誘導(リンク表示)
 [ ] Phase6.3 OpenAI文字起こし連携【実装のみ・テスト対象外】
     - 録音音声をOpenAI Audio API(gpt-4o-transcribe/Whisper)へ直接送信する処理の実装
     - 認証エラー/ネットワークエラーのハンドリング(日/英)

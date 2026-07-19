@@ -177,6 +177,17 @@ export const ja = {
     tagFilter: 'タグで絞り込み',
     allTags: 'すべて',
     newMemo: '新規メモ',
+    voice: {
+      record: '🎤 音声メモ',
+      stop: '■ 録音停止',
+      recording: '録音中...',
+      keyMissing: 'AIのAPIキーが未登録です。設定画面で登録してください。',
+      goSettings: '設定を開く',
+      permissionDenied:
+        'マイクの使用が許可されていません。ブラウザの設定でマイクの使用を許可してください。',
+      unsupported: 'このブラウザでは録音がサポートされていません。',
+      failed: '録音の開始に失敗しました。再度お試しください。',
+    },
     loadFailed: 'メモの読み込みに失敗しました。',
     saveFailed: 'メモの保存に失敗しました。',
     deleteFailed: 'メモの削除に失敗しました。',

@@ -369,6 +369,25 @@
   margin-top: 0.5rem;
 }
 
+.memo-area__form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: stretch;
+}
+
+.voice-recorder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+}
+
+.voice-recorder__button--recording {
+  outline: 2px solid #e53935;
+  color: #e53935;
+}
+
 .memo-area__empty {
   font-size: 0.85rem;
   opacity: 0.75;
