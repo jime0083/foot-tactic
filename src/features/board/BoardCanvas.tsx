@@ -11,6 +11,7 @@ import {
   zoomAtPoint,
   type Point,
 } from './boardView';
+import { registerStage } from './export/stageRegistry';
 import { FieldLines } from './field/FieldLines';
 import { computeViewTransform, FIELD_LAYOUTS } from './field/fieldLayouts';
 import { FIELD_SPECS } from './field/fieldSpec';
@@ -461,6 +462,10 @@ export function BoardCanvas() {
           onPointerCancel={handlePointerEnd}
         >
           <Stage
+            ref={(node) => {
+              registerStage(node);
+              return () => registerStage(null);
+            }}
             width={box.width}
             height={box.height}
             scaleX={stageTransform.scale}

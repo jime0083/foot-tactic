@@ -34,6 +34,10 @@ export const ja = {
     title: '戦術ボード',
     notFound: 'プロジェクトが見つかりません',
     loadFailed: 'プロジェクトの読み込みに失敗しました。再度お試しください。',
+    export: {
+      png: 'PNG書き出し',
+      failed: 'PNG書き出しに失敗しました。',
+    },
     save: {
       saved: '保存済み',
       dirty: '未保存の変更あり',

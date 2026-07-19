@@ -43,6 +43,10 @@ export const en: TranslationResource = {
     title: 'Tactics Board',
     notFound: 'Project not found',
     loadFailed: 'Failed to load the project. Please try again.',
+    export: {
+      png: 'Export PNG',
+      failed: 'Failed to export PNG.',
+    },
     save: {
       saved: 'Saved',
       dirty: 'Unsaved changes',
