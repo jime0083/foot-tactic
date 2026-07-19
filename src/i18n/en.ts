@@ -203,7 +203,11 @@ export const en: TranslationResource = {
       discard: 'Discard',
       dismiss: 'Close',
       authError: 'Invalid API key. Please check the key in Settings.',
-      quotaError: 'API usage limit (free tier) reached. Please try again later.',
+      quotaError:
+        'You have used up the free API quota. Voice transcription is paused (quota resets daily).',
+      quotaBlocked:
+        'Voice transcription is paused due to quota limits. Re-enable it after your quota resets (usually the next day).',
+      reenable: 'Re-enable',
       networkError: 'A network error occurred. Please check your connection and try again.',
       otherError: 'Transcription failed. Please try again.',
     },

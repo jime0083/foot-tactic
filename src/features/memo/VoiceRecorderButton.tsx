@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getActiveApiKey, loadAiSettings } from '@/features/transcription/aiSettings';
+import { clearQuotaBlock, isQuotaBlocked } from '@/features/transcription/quotaGuard';
 import { RecorderError, useRecorder } from '@/features/transcription/useRecorder';
 
 interface VoiceRecorderButtonProps {
@@ -16,6 +17,9 @@ export function VoiceRecorderButton({ onAudioReady, disabled = false }: VoiceRec
   const { status, start, stop } = useRecorder();
   const [showKeyGuide, setShowKeyGuide] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [, forceUpdate] = useReducer((count: number) => count + 1, 0);
+  // クォータ超過ブロック中は録音ボタンを無効化する(要件VOICE-9)
+  const quotaBlocked = isQuotaBlocked();
 
   const handleClick = async () => {
     setErrorMessage(null);
@@ -49,13 +53,27 @@ export function VoiceRecorderButton({ onAudioReady, disabled = false }: VoiceRec
     <div className="voice-recorder">
       <button
         type="button"
-        disabled={disabled}
+        disabled={disabled || quotaBlocked}
         className={status === 'recording' ? 'voice-recorder__button--recording' : undefined}
         onClick={() => void handleClick()}
       >
         {status === 'recording' ? t('memo.voice.stop') : t('memo.voice.record')}
       </button>
       {status === 'recording' && <span role="status">{t('memo.voice.recording')}</span>}
+      {quotaBlocked && (
+        <span role="alert">
+          {t('memo.voice.quotaBlocked')}{' '}
+          <button
+            type="button"
+            onClick={() => {
+              clearQuotaBlock();
+              forceUpdate();
+            }}
+          >
+            {t('memo.voice.reenable')}
+          </button>
+        </span>
+      )}
       {showKeyGuide && (
         <span role="alert">
           {t('memo.voice.keyMissing')} <Link to="/settings">{t('memo.voice.goSettings')}</Link>

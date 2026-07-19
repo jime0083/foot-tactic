@@ -288,7 +288,7 @@ describe('MemoArea 音声メモフロー', () => {
 
     await recordOnce();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('利用上限(無料枠)に達しました');
+    expect(await screen.findByRole('alert')).toHaveTextContent('無料枠を使い切りました');
     consoleError.mockRestore();
   });
 });

@@ -4,6 +4,11 @@ import { MemoryRouter } from 'react-router';
 import { vi } from 'vitest';
 import { VoiceRecorderButton } from './VoiceRecorderButton';
 import { AI_SETTINGS_STORAGE_KEY, saveAiSettings } from '@/features/transcription/aiSettings';
+import {
+  isQuotaBlocked,
+  setQuotaBlocked,
+  QUOTA_BLOCK_STORAGE_KEY,
+} from '@/features/transcription/quotaGuard';
 
 /** テスト用のMediaRecorderモック */
 class FakeMediaRecorder {
@@ -35,6 +40,7 @@ describe('VoiceRecorderButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.removeItem(AI_SETTINGS_STORAGE_KEY);
+    localStorage.removeItem(QUOTA_BLOCK_STORAGE_KEY);
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
     Object.defineProperty(navigator, 'mediaDevices', {
       value: { getUserMedia },
@@ -79,6 +85,20 @@ describe('VoiceRecorderButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /音声メモ/ }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('マイクの使用が許可されていません');
+  });
+
+  it('クォータブロック中は録音ボタンが無効になり、再有効化で回復する', async () => {
+    saveAiSettings({ provider: 'gemini', geminiKey: 'test-key' });
+    setQuotaBlocked();
+    renderButton();
+
+    expect(screen.getByRole('button', { name: /音声メモ/ })).toBeDisabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('無料枠超過のため');
+
+    await userEvent.click(screen.getByRole('button', { name: '再有効化' }));
+
+    expect(isQuotaBlocked()).toBe(false);
+    expect(screen.getByRole('button', { name: /音声メモ/ })).toBeEnabled();
   });
 
   it('録音非対応ブラウザではその旨を表示する', async () => {
