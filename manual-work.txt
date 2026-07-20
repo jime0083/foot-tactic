@@ -67,7 +67,7 @@ Work2: AI文字起こし用APIキーの準備(動作検証用)
 =====================================================
 Work3: Googleドキュメント保存用のGoogle Cloud設定
 =====================================================
-[ ] Work3.1 Docs API / Drive APIの有効化とOAuth同意画面の設定
+[x] Work3.1 Docs API / Drive APIの有効化とOAuth同意画面の設定 (2026-07-20 完了・スクリーンショット確認済み。公開ステータス=本番環境)
     期限: Phase7.1 開始まで
     手順:
       1. https://console.cloud.google.com/ でFirebaseと同じGCPプロジェクトを開く
