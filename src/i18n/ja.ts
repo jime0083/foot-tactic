@@ -38,6 +38,18 @@ export const ja = {
       png: 'PNG書き出し',
       failed: 'PNG書き出しに失敗しました。',
     },
+    gdoc: {
+      save: 'Googleドキュメントに保存',
+      saving: 'ドキュメント作成中...',
+      done: '保存しました:',
+      open: 'ドキュメントを開く',
+      close: '閉じる',
+      retry: '再試行',
+      sceneHeading: 'シーン {{n}}',
+      authFailed: 'Googleの認可に失敗しました。再度お試しください。',
+      networkFailed: 'ネットワークエラーが発生しました。接続を確認して再試行してください。',
+      failed: 'Googleドキュメントへの保存に失敗しました。再試行してください。',
+    },
     save: {
       saved: '保存済み',
       dirty: '未保存の変更あり',

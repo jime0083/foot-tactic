@@ -47,6 +47,18 @@ export const en: TranslationResource = {
       png: 'Export PNG',
       failed: 'Failed to export PNG.',
     },
+    gdoc: {
+      save: 'Save to Google Docs',
+      saving: 'Creating document...',
+      done: 'Saved:',
+      open: 'Open document',
+      close: 'Close',
+      retry: 'Retry',
+      sceneHeading: 'Scene {{n}}',
+      authFailed: 'Google authorization failed. Please try again.',
+      networkFailed: 'A network error occurred. Check your connection and retry.',
+      failed: 'Failed to save to Google Docs. Please retry.',
+    },
     save: {
       saved: 'Saved',
       dirty: 'Unsaved changes',
