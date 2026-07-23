@@ -114,6 +114,13 @@ export const ja = {
       substituteTab: '控え',
       substituteRoster: '控え選手リスト',
       applySubstitutes: '控えを配置',
+      csvTab: 'CSV一括',
+      csvLabel: 'CSVデータ',
+      csvHelp:
+        '「###home,4-4-2」「###away,4-3-3」の行でチームとシステムを指定し、次の行から「背番号,名前」を並べます。1つのCSVで両チームを一括配置できます(12人目以降は控え)。',
+      csvPlaceholder: '###home,4-4-2\n1,GK田中\n2,右SB\n...\n###away,4-3-3\n1,GK佐藤\n...',
+      applyCsv: 'CSVから配置',
+      csvNoTeam: '###home または ###away で始まる行が見つかりません。',
     },
     scenes: {
       title: 'シーン',

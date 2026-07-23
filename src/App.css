@@ -364,6 +364,13 @@
   font-size: 0.8rem;
 }
 
+.formation-panel__csv-help {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin: 0.3rem 0;
+  line-height: 1.5;
+}
+
 .scene-strip {
   display: flex;
   gap: 0.3rem;

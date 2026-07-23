@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useBoardStore } from '@/stores/boardStore';
 import { FIELD_SPECS } from '../field/fieldSpec';
 import type { TeamSide } from '../objects/objectTypes';
+import { applyCsvFormation } from './csvFormation';
 import {
   buildFormationPlayers,
   buildSubstitutePlayers,
@@ -10,9 +11,12 @@ import {
   replaceTeamSubstitutes,
 } from './formationPlacement';
 import { FORMATIONS } from './formations';
+import { hasAnyTeam, parseFormationCsv } from './parseFormationCsv';
 import { parseRoster } from './parseRoster';
 
-/** フォーメーション一括配置パネル */
+type FormationTab = 'lineup' | 'substitute' | 'csv';
+
+/** フォーメーション一括配置パネル(先発/控え/CSV一括) */
 export function FormationPanel() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -20,7 +24,9 @@ export function FormationPanel() {
   const [centered, setCentered] = useState(false);
   const [rosterText, setRosterText] = useState('');
   const [substituteText, setSubstituteText] = useState('');
-  const [activeTab, setActiveTab] = useState<'lineup' | 'substitute'>('lineup');
+  const [csvText, setCsvText] = useState('');
+  const [csvError, setCsvError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<FormationTab>('lineup');
   const sportType = useBoardStore((state) => state.sportType);
   const formations = FORMATIONS[sportType];
   const [formationId, setFormationId] = useState(formations[0].id);
@@ -53,6 +59,17 @@ export function FormationPanel() {
     store.setObjects(replaceTeamSubstitutes(store.objects, spec, team, players));
   };
 
+  const handleApplyCsv = () => {
+    const store = useBoardStore.getState();
+    const data = parseFormationCsv(csvText);
+    if (!hasAnyTeam(data)) {
+      setCsvError(t('board.formation.csvNoTeam'));
+      return;
+    }
+    setCsvError(null);
+    store.setObjects(applyCsvFormation(store.objects, store.sportType, data));
+  };
+
   return (
     <div className="formation-panel">
       <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
@@ -77,15 +94,27 @@ export function FormationPanel() {
             >
               {t('board.formation.substituteTab')}
             </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'csv'}
+              onClick={() => setActiveTab('csv')}
+            >
+              {t('board.formation.csvTab')}
+            </button>
           </div>
-          <label>
-            {t('board.player.team')}
-            <select value={team} onChange={(event) => setTeam(event.target.value as TeamSide)}>
-              <option value="home">{t('board.player.home')}</option>
-              <option value="away">{t('board.player.away')}</option>
-            </select>
-          </label>
-          {activeTab === 'lineup' ? (
+
+          {activeTab !== 'csv' && (
+            <label>
+              {t('board.player.team')}
+              <select value={team} onChange={(event) => setTeam(event.target.value as TeamSide)}>
+                <option value="home">{t('board.player.home')}</option>
+                <option value="away">{t('board.player.away')}</option>
+              </select>
+            </label>
+          )}
+
+          {activeTab === 'lineup' && (
             <>
               <label>
                 {t('board.formation.system')}
@@ -121,7 +150,9 @@ export function FormationPanel() {
                 {t('board.formation.apply')}
               </button>
             </>
-          ) : (
+          )}
+
+          {activeTab === 'substitute' && (
             <>
               <label className="formation-panel__roster">
                 {t('board.formation.substituteRoster')}
@@ -134,6 +165,25 @@ export function FormationPanel() {
               </label>
               <button type="button" onClick={handleApplySubstitutes}>
                 {t('board.formation.applySubstitutes')}
+              </button>
+            </>
+          )}
+
+          {activeTab === 'csv' && (
+            <>
+              <p className="formation-panel__csv-help">{t('board.formation.csvHelp')}</p>
+              <label className="formation-panel__roster">
+                {t('board.formation.csvLabel')}
+                <textarea
+                  rows={8}
+                  value={csvText}
+                  placeholder={t('board.formation.csvPlaceholder')}
+                  onChange={(event) => setCsvText(event.target.value)}
+                />
+              </label>
+              {csvError && <p role="alert">{csvError}</p>}
+              <button type="button" onClick={handleApplyCsv}>
+                {t('board.formation.applyCsv')}
               </button>
             </>
           )}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormationPanel } from './FormationPanel';
 import type { PlayerObject } from '../objects/objectTypes';
@@ -60,5 +60,33 @@ describe('FormationPanel', () => {
     // アウェイを再配置しても総数は変わらない(置換)
     await userEvent.click(screen.getByRole('button', { name: '一括配置' }));
     expect(useBoardStore.getState().objects).toHaveLength(22);
+  });
+
+  it('CSVタブから両チームを一括配置できる', async () => {
+    await openPanel();
+    await userEvent.click(screen.getByRole('tab', { name: 'CSV一括' }));
+
+    const home = Array.from({ length: 11 }, (_, i) => `${i + 1},H${i + 1}`).join('\n');
+    const away = Array.from({ length: 11 }, (_, i) => `${i + 1},A${i + 1}`).join('\n');
+    const csv = `###home,4-4-2\n${home}\n###away,4-3-3\n${away}`;
+
+    fireEvent.change(screen.getByLabelText('CSVデータ'), { target: { value: csv } });
+    await userEvent.click(screen.getByRole('button', { name: 'CSVから配置' }));
+
+    const players = useBoardStore.getState().objects as PlayerObject[];
+    expect(players).toHaveLength(22);
+    expect(players.filter((p) => p.team === 'home')).toHaveLength(11);
+    expect(players.filter((p) => p.team === 'away')).toHaveLength(11);
+  });
+
+  it('###home/###awayがないCSVはエラーを表示し配置しない', async () => {
+    await openPanel();
+    await userEvent.click(screen.getByRole('tab', { name: 'CSV一括' }));
+
+    fireEvent.change(screen.getByLabelText('CSVデータ'), { target: { value: '1,山田\n2,佐藤' } });
+    await userEvent.click(screen.getByRole('button', { name: 'CSVから配置' }));
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(useBoardStore.getState().objects).toHaveLength(0);
   });
 });

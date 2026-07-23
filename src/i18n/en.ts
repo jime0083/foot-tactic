@@ -124,6 +124,13 @@ export const en: TranslationResource = {
       substituteTab: 'Substitutes',
       substituteRoster: 'Substitute list',
       applySubstitutes: 'Place substitutes',
+      csvTab: 'CSV bulk',
+      csvLabel: 'CSV data',
+      csvHelp:
+        'Use "###home,4-4-2" / "###away,4-3-3" rows to set each team and system, then list "number,name" rows. Both teams can be placed from one CSV (12th player onward becomes a substitute).',
+      csvPlaceholder: '###home,4-4-2\n1,GK Tanaka\n2,RB\n...\n###away,4-3-3\n1,GK Sato\n...',
+      applyCsv: 'Place from CSV',
+      csvNoTeam: 'No line starting with ###home or ###away was found.',
     },
     scenes: {
       title: 'Scenes',
