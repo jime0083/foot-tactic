@@ -236,5 +236,6 @@ Phase 9: 仕上げ・リリース
     - ユニット+統合302件、カバレッジ87%(全項目80%以上、閾値設定済み)
     - E2E(Playwright+Firebase Emulator): ログイン→ボード作成→メモ→PNG書き出しの主要フロー
     - カバレッジ除外: Konva描画コンポーネント(jsdom描画不可、E2Eで担保)、OpenAI連携(ルール)
-[ ] Phase9.5 Firebase Hostingデプロイ
-    - ビルド、firestore.rulesデプロイ、Hostingデプロイ、動作確認
+[x] Phase9.5 Firebase Hostingデプロイ (2026-07-20)
+    - 本番ビルド、firestore.rulesデプロイ、Hostingデプロイ完了
+    - 本番URL: https://foot-tactic.web.app
