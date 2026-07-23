@@ -32,6 +32,11 @@ export const ja = {
   },
   board: {
     title: '戦術ボード',
+    panel: {
+      tools: 'ツール・操作',
+      notes: 'メモ',
+      close: '閉じる',
+    },
     notFound: 'プロジェクトが見つかりません',
     loadFailed: 'プロジェクトの読み込みに失敗しました。再度お試しください。',
     export: {

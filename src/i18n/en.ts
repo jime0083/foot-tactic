@@ -41,6 +41,11 @@ export const en: TranslationResource = {
   },
   board: {
     title: 'Tactics Board',
+    panel: {
+      tools: 'Tools',
+      notes: 'Notes',
+      close: 'Close',
+    },
     notFound: 'Project not found',
     loadFailed: 'Failed to load the project. Please try again.',
     export: {

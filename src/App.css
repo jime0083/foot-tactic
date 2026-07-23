@@ -35,11 +35,109 @@
   font-weight: 600;
 }
 
-.board-page {
+/* ボード編集画面の3カラムレイアウト(左パネル/中央ボード/右パネル) */
+.board-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  height: calc(100vh - 3rem);
+  background: var(--bg);
+}
+
+.board-panel {
+  overflow-y: auto;
+  background: var(--panel-bg);
+}
+
+.board-panel--left {
+  border-right: 1px solid var(--panel-border);
+}
+
+.board-panel--right {
+  border-left: 1px solid var(--panel-border);
+}
+
+/* 左パネル内の各操作ブロックは縦積み・折り返し(横スクロールを出さない) */
+.board-panel--left > * {
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.board-panel--left .board-toolbar,
+.board-panel--left .tool-menu,
+.board-panel--left .object-panel,
+.board-panel--left .formation-panel__body,
+.board-panel--left .save-bar {
+  overflow-x: visible;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.board-layout__center {
   display: flex;
   flex-direction: column;
-  /* ヘッダーを除いた画面全体を使う */
-  height: calc(100vh - 3rem);
+  min-width: 0;
+  min-height: 0;
+}
+
+.board-layout__mobile-bar,
+.board-layout__scrim {
+  display: none;
+}
+
+/* モバイル: 左右パネルをドロワー化 */
+@media (max-width: 768px) {
+  .board-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .board-layout__mobile-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .board-layout__center {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .board-panel {
+    position: fixed;
+    top: 3rem;
+    bottom: 0;
+    width: 86%;
+    max-width: 340px;
+    z-index: 60;
+    transition: transform 0.22s ease;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .board-panel--left {
+    left: 0;
+    transform: translateX(-102%);
+  }
+
+  .board-panel--right {
+    right: 0;
+    left: auto;
+    transform: translateX(102%);
+  }
+
+  .board-panel.is-open {
+    transform: translateX(0);
+  }
+
+  .board-layout__scrim {
+    display: block;
+    position: fixed;
+    inset: 3rem 0 0 0;
+    z-index: 55;
+    background: rgba(0, 0, 0, 0.35);
+    border: none;
+    padding: 0;
+  }
 }
 
 .project-list {
@@ -182,7 +280,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #111;
+  background: var(--board-frame);
 }
 
 .board-canvas__stage {

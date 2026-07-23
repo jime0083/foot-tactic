@@ -39,6 +39,9 @@ export function BoardPage() {
   const { saveState, saveNow } = useAutosave(user?.uid, projectId, status === 'ready');
   const [exportError, setExportError] = useState(false);
   const [gdocState, setGdocState] = useState<GdocState | null>(null);
+  // モバイルでの左右パネル開閉(デスクトップではCSSで常時表示)
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
 
   /** ボード+メモを新規Googleドキュメントとして保存する */
   const handleSaveToGoogleDoc = async () => {
@@ -147,51 +150,85 @@ export function BoardPage() {
   }
 
   return (
-    <main className="board-page" data-project-id={projectId}>
+    <div className="board-layout" data-project-id={projectId}>
       <h1 className="visually-hidden">{title || t('board.title')}</h1>
-      <div className="save-bar">
-        {exportError && <span role="alert">{t('board.export.failed')}</span>}
-        {gdocState?.status === 'done' && (
-          <span role="status">
-            {t('board.gdoc.done')}{' '}
-            <a href={gdocState.url} target="_blank" rel="noreferrer">
-              {t('board.gdoc.open')}
-            </a>{' '}
-            <button type="button" onClick={() => setGdocState(null)}>
-              {t('board.gdoc.close')}
-            </button>
-          </span>
-        )}
-        {gdocState?.status === 'error' && (
-          <span role="alert">
-            {t(gdocState.messageKey)}{' '}
-            <button type="button" onClick={() => void handleSaveToGoogleDoc()}>
-              {t('board.gdoc.retry')}
-            </button>
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={() => void handleSaveToGoogleDoc()}
-          disabled={gdocState?.status === 'working'}
-        >
-          {gdocState?.status === 'working' ? t('board.gdoc.saving') : t('board.gdoc.save')}
+
+      {/* モバイル用: 左右パネルの開閉バー */}
+      <div className="board-layout__mobile-bar">
+        <button type="button" onClick={() => setLeftOpen((v) => !v)} aria-expanded={leftOpen}>
+          {t('board.panel.tools')}
         </button>
-        <button type="button" onClick={() => void handleExportPng()}>
-          {t('board.export.png')}
-        </button>
-        <span role="status">{t(`board.save.${saveState}`)}</span>
-        <button type="button" onClick={() => void saveNow()} disabled={saveState === 'saving'}>
-          {t('board.save.button')}
+        <button type="button" onClick={() => setRightOpen((v) => !v)} aria-expanded={rightOpen}>
+          {t('board.panel.notes')}
         </button>
       </div>
-      <FieldSettingsBar />
-      <ToolMenu />
-      <FormationPanel />
-      <PlayerPanel />
-      <BoardCanvas />
-      <SceneStrip />
-      {user && projectId && <MemoArea uid={user.uid} projectId={projectId} />}
-    </main>
+
+      {(leftOpen || rightOpen) && (
+        <button
+          type="button"
+          className="board-layout__scrim"
+          aria-label={t('board.panel.close')}
+          onClick={() => {
+            setLeftOpen(false);
+            setRightOpen(false);
+          }}
+        />
+      )}
+
+      {/* 左パネル: ボード操作系 */}
+      <aside className={`board-panel board-panel--left${leftOpen ? ' is-open' : ''}`}>
+        <div className="save-bar">
+          {exportError && <span role="alert">{t('board.export.failed')}</span>}
+          {gdocState?.status === 'done' && (
+            <span role="status">
+              {t('board.gdoc.done')}{' '}
+              <a href={gdocState.url} target="_blank" rel="noreferrer">
+                {t('board.gdoc.open')}
+              </a>{' '}
+              <button type="button" onClick={() => setGdocState(null)}>
+                {t('board.gdoc.close')}
+              </button>
+            </span>
+          )}
+          {gdocState?.status === 'error' && (
+            <span role="alert">
+              {t(gdocState.messageKey)}{' '}
+              <button type="button" onClick={() => void handleSaveToGoogleDoc()}>
+                {t('board.gdoc.retry')}
+              </button>
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => void handleSaveToGoogleDoc()}
+            disabled={gdocState?.status === 'working'}
+          >
+            {gdocState?.status === 'working' ? t('board.gdoc.saving') : t('board.gdoc.save')}
+          </button>
+          <button type="button" onClick={() => void handleExportPng()}>
+            {t('board.export.png')}
+          </button>
+          <span role="status">{t(`board.save.${saveState}`)}</span>
+          <button type="button" onClick={() => void saveNow()} disabled={saveState === 'saving'}>
+            {t('board.save.button')}
+          </button>
+        </div>
+        <FieldSettingsBar />
+        <ToolMenu />
+        <FormationPanel />
+        <PlayerPanel />
+      </aside>
+
+      {/* 中央: ボード + シーン */}
+      <div className="board-layout__center">
+        <BoardCanvas />
+        <SceneStrip />
+      </div>
+
+      {/* 右パネル: メモ系 */}
+      <aside className={`board-panel board-panel--right${rightOpen ? ' is-open' : ''}`}>
+        {user && projectId && <MemoArea uid={user.uid} projectId={projectId} />}
+      </aside>
+    </div>
   );
 }
