@@ -4,12 +4,17 @@ import { vi, type Mock } from 'vitest';
 import type { User } from 'firebase/auth';
 import { SettingsPage } from './SettingsPage';
 import { updateUserAiProvider, updateUserLanguage } from '@/features/auth/userDocument';
+import { AccountError, deleteAccount } from '@/features/auth/accountService';
 import { AuthContext } from '@/features/auth/auth-context';
 import { AI_SETTINGS_STORAGE_KEY, loadAiSettings } from '@/features/transcription/aiSettings';
 
 vi.mock('@/features/auth/userDocument', () => ({
   updateUserLanguage: vi.fn(),
   updateUserAiProvider: vi.fn(),
+}));
+vi.mock('@/features/auth/accountService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/features/auth/accountService')>()),
+  deleteAccount: vi.fn(),
 }));
 
 const mockUser = { uid: 'test-uid' } as User;
@@ -31,7 +36,52 @@ describe('SettingsPage', () => {
   it('言語切替とアカウント削除ボタンが表示される', () => {
     renderSettingsPage();
     expect(screen.getByLabelText('言語')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'アカウント削除' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'アカウントを削除' })).toBeEnabled();
+  });
+
+  it('確認後にアカウント削除が実行される', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    (deleteAccount as Mock).mockResolvedValue(undefined);
+    renderSettingsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: 'アカウントを削除' }));
+
+    expect(deleteAccount).toHaveBeenCalledTimes(1);
+    confirmSpy.mockRestore();
+  });
+
+  it('確認をキャンセルすると削除されない', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    renderSettingsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: 'アカウントを削除' }));
+
+    expect(deleteAccount).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
+  it('削除失敗時はエラーメッセージが表示される', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (deleteAccount as Mock).mockRejectedValue(new AccountError('failed', 'boom'));
+    renderSettingsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: 'アカウントを削除' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('アカウントの削除に失敗しました');
+    confirmSpy.mockRestore();
+    consoleError.mockRestore();
+  });
+
+  it('再認証キャンセル時はエラーを表示しない', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    (deleteAccount as Mock).mockRejectedValue(new AccountError('cancelled', 'cancelled'));
+    renderSettingsPage();
+
+    await userEvent.click(screen.getByRole('button', { name: 'アカウントを削除' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    confirmSpy.mockRestore();
   });
 
   it('AIプロバイダを切り替えるとlocalStorageとFirestoreに保存される', async () => {

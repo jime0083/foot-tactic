@@ -233,6 +233,12 @@ export const en: TranslationResource = {
     logout: 'Sign out',
     logoutFailed: 'Sign-out failed. Please try again.',
     deleteAccount: 'Delete account',
+    deletingAccount: 'Deleting...',
+    deleteAccountNote:
+      'Deleting your account permanently removes all saved projects and notes. This cannot be undone.',
+    confirmDeleteAccount:
+      'Are you sure you want to delete your account? All saved projects and notes will be permanently removed and cannot be recovered.',
+    deleteAccountFailed: 'Failed to delete the account. Please try again.',
     ai: {
       title: 'AI voice transcription',
       provider: 'AI provider',

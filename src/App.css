@@ -521,6 +521,26 @@
   white-space: nowrap;
 }
 
+.settings-danger {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-danger button {
+  color: #c62828;
+  border-color: #c62828;
+}
+
+.settings-danger__note {
+  font-size: 0.78rem;
+  opacity: 0.8;
+  max-width: 30rem;
+  text-align: center;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

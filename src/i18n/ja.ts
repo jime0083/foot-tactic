@@ -222,7 +222,13 @@ export const ja = {
     language: '言語',
     logout: 'ログアウト',
     logoutFailed: 'ログアウトに失敗しました。再度お試しください。',
-    deleteAccount: 'アカウント削除',
+    deleteAccount: 'アカウントを削除',
+    deletingAccount: '削除中...',
+    deleteAccountNote:
+      'アカウントを削除すると、保存した全プロジェクト・メモが完全に削除され、元に戻せません。',
+    confirmDeleteAccount:
+      '本当にアカウントを削除しますか?保存した全プロジェクト・メモが完全に削除され、元に戻せません。',
+    deleteAccountFailed: 'アカウントの削除に失敗しました。再度お試しください。',
     ai: {
       title: 'AI音声文字起こし',
       provider: 'AIプロバイダ',
