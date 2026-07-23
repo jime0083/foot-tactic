@@ -232,9 +232,9 @@ Phase 9: 仕上げ・リリース
 [x] Phase9.3 アカウント削除(退会)機能の完成 (2026-07-20)
     - 再認証→Firestoreデータ削除(memos→projects→userドキュメント)→Authユーザー削除
     - 設定画面の削除ボタン有効化(確認ダイアログ、注意文言、エラー表示)
-[ ] Phase9.4 テスト整備
-    - ユニット+統合+E2E(Playwright)、カバレッジ80%以上
-    - ※OpenAI連携モジュール(Phase6.3)はテスト・カバレッジ対象外
-    - 主要フロー: ログイン→ボード作成→メモ→PNG書き出しのE2E
+[x] Phase9.4 テスト整備 (2026-07-20)
+    - ユニット+統合302件、カバレッジ87%(全項目80%以上、閾値設定済み)
+    - E2E(Playwright+Firebase Emulator): ログイン→ボード作成→メモ→PNG書き出しの主要フロー
+    - カバレッジ除外: Konva描画コンポーネント(jsdom描画不可、E2Eで担保)、OpenAI連携(ルール)
 [ ] Phase9.5 Firebase Hostingデプロイ
     - ビルド、firestore.rulesデプロイ、Hostingデプロイ、動作確認

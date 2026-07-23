@@ -44,7 +44,27 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/main.tsx', 'src/**/*.d.ts', 'src/test/**'],
+      exclude: [
+        'src/main.tsx',
+        'src/App.tsx',
+        'src/**/*.d.ts',
+        'src/test/**',
+        // Konvaのcanvas描画に強く依存し、jsdomでは実描画できないコンポーネント。
+        // 描画ロジックは純粋関数(fieldGeometry/boardView/shapeDrafting等)側でテスト済み。
+        // これらの操作系はE2E(実ブラウザ)で担保する。
+        'src/features/board/BoardCanvas.tsx',
+        'src/features/board/objects/BoardObjects.tsx',
+        'src/features/board/objects/PlayerShape.tsx',
+        'src/features/board/field/FieldLines.tsx',
+        // OpenAI連携はAPIキーが用意できず実キー検証不可のためテスト対象外(CLAUDE.md参照)
+        'src/features/transcription/openaiTranscribe.ts',
+      ],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 });

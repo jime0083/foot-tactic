@@ -21,6 +21,11 @@ firebase-debug.log
 # vite-plugin-pwa 開発生成物
 dev-dist
 
+# Playwright
+test-results
+playwright-report
+playwright/.cache
+
 # 環境変数(Firebase構成値など)
 .env
 .env.*
