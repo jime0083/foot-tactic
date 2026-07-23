@@ -225,7 +225,10 @@ Phase 9: 仕上げ・リリース
     - vite-plugin-pwa導入、manifest.webmanifest生成(standalone、theme_color等)
     - Workbox Service Worker(autoUpdate)、PWAアイコン(通常/maskable)
     - index.htmlにtheme-color/apple-touch-icon/iOS PWA用metaを追加
-[ ] Phase9.2 レスポンシブ調整(PC/タブレット/スマートフォン)
+[x] Phase9.2 レスポンシブ調整(PC/タブレット/スマートフォン) (2026-07-20)
+    - 横スクロール防止、ツールバーの折り返し/スクロール対応
+    - 768px以下: ボード全体スクロール化、フォント縮小、タップ領域確保、メモ縦積み
+    - 480px以下: ナビ・サムネイル・入力欄の狭幅調整
 [ ] Phase9.3 アカウント削除(退会)機能の完成
     - ユーザーデータ(projects/memos含む)の削除処理
 [ ] Phase9.4 テスト整備

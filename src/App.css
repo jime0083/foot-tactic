@@ -532,3 +532,115 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* ページ全体の横スクロールを防ぐ */
+body {
+  overflow-x: hidden;
+}
+
+/* 各ツールバーは横に溢れずスクロール、または折り返す */
+.board-toolbar,
+.tool-menu,
+.object-panel,
+.scene-strip {
+  overflow-x: auto;
+}
+
+/* タブレット・スマートフォン向け調整 */
+@media (max-width: 768px) {
+  .app-header {
+    gap: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* ボード画面は固定高さをやめてページスクロールを許可 */
+  .board-page {
+    height: auto;
+    min-height: calc(100vh - 3rem);
+  }
+
+  .board-canvas {
+    min-height: 50vh;
+  }
+
+  .save-bar,
+  .board-toolbar,
+  .tool-menu,
+  .object-panel,
+  .formation-panel__body {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 0.78rem;
+    gap: 0.4rem;
+  }
+
+  .board-toolbar label,
+  .tool-menu__item,
+  .object-panel label {
+    font-size: 0.72rem;
+  }
+
+  /* タップしやすいボタンサイズを確保 */
+  .board-page button,
+  .memo-area button,
+  .scene-strip button {
+    min-height: 34px;
+  }
+
+  /* 色設定パネルが画面外に出ないよう左寄せに切り替え */
+  .field-color-panel__body {
+    right: auto;
+    left: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .memo-area {
+    max-height: 50vh;
+    padding: 0.5rem 0.6rem 1rem;
+  }
+
+  .memo-area__form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .memo-area__form-buttons {
+    flex-direction: row;
+  }
+
+  .project-list {
+    padding: 1rem 0.75rem;
+  }
+
+  .project-list__grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .project-list__create input,
+  .project-list__filter input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .ai-settings input[type='password'],
+  .ai-settings input[type='text'] {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* スマートフォン縦向け(狭幅)の追加調整 */
+@media (max-width: 480px) {
+  .app-header__nav {
+    gap: 0.6rem;
+  }
+
+  .scene-thumbnail {
+    width: 48px;
+  }
+
+  .formation-panel__roster textarea {
+    min-width: 0;
+    width: 100%;
+  }
+}
