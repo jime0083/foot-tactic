@@ -221,7 +221,10 @@ Phase 8: 修正作業(problem.txtベース)
 Phase 9: 仕上げ・リリース
 =====================================================
 ※着手前提: Work4.1(Phase9.5まで)、Work4.2・4.3(リリース判断まで)
-[ ] Phase9.1 PWA対応(manifest、Service Worker、ホーム画面追加)
+[x] Phase9.1 PWA対応(manifest、Service Worker、ホーム画面追加) (2026-07-20)
+    - vite-plugin-pwa導入、manifest.webmanifest生成(standalone、theme_color等)
+    - Workbox Service Worker(autoUpdate)、PWAアイコン(通常/maskable)
+    - index.htmlにtheme-color/apple-touch-icon/iOS PWA用metaを追加
 [ ] Phase9.2 レスポンシブ調整(PC/タブレット/スマートフォン)
 [ ] Phase9.3 アカウント削除(退会)機能の完成
     - ユーザーデータ(projects/memos含む)の削除処理
