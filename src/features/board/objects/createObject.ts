@@ -46,7 +46,7 @@ export function createObjectAt(
     case 'ball':
       return { ...base, type: 'ball', color: '#ffffff' };
     case 'marker':
-      return { ...base, type: 'marker', color: '#ff9800', size: 1 };
+      return { ...base, type: 'marker', color: '#ff9800', size: 2 };
     case 'line':
       return {
         ...base,

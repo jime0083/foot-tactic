@@ -34,6 +34,16 @@ describe('normalizeSnapshot', () => {
     expect(snapshot.scenes[0].objects[0]).toEqual(ball);
   });
 
+  it('旧既定サイズ(1.2)で保存された選手サイズは新既定値(2.4)へ引き上げられる', () => {
+    const snapshot = normalizeSnapshot({ playerDisplay: { bodyRadius: 1.2 } });
+    expect(snapshot.playerDisplay.bodyRadius).toBe(2.4);
+  });
+
+  it('独自に調整した選手サイズ(旧既定値以外)はそのまま保持される', () => {
+    const snapshot = normalizeSnapshot({ playerDisplay: { bodyRadius: 1.8 } });
+    expect(snapshot.playerDisplay.bodyRadius).toBe(1.8);
+  });
+
   it('不正なデータは既定値に置き換えられる', () => {
     const snapshot = normalizeSnapshot({
       sportType: 'invalid',

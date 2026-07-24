@@ -48,6 +48,12 @@ export function createInitialSnapshot(sportType: SportType): BoardSnapshot {
 const SPORT_TYPES: SportType[] = ['soccer11', 'soccer8', 'futsal'];
 
 /**
+ * 旧既定の選手サイズ(bodyRadius)。この値で保存された既存プロジェクトは、
+ * 選手マーカー2倍化(P-7)前の未調整プロジェクトとみなし、新既定値へ引き上げる。
+ */
+const LEGACY_DEFAULT_BODY_RADIUS = 1.2;
+
+/**
  * Firestoreから読み込んだ生データをBoardSnapshotとして検証・正規化する。
  * 想定外の値は安全な既定値に置き換える。
  */
@@ -79,15 +85,21 @@ export function normalizeSnapshot(raw: unknown): BoardSnapshot {
         : [],
     }));
 
+  const playerDisplay: PlayerDisplaySettings = {
+    ...fallback.playerDisplay,
+    ...(data.playerDisplay as Partial<PlayerDisplaySettings>),
+  };
+  // 旧既定サイズのまま保存された既存プロジェクトは新既定値(2倍)へ引き上げる
+  if (playerDisplay.bodyRadius === LEGACY_DEFAULT_BODY_RADIUS) {
+    playerDisplay.bodyRadius = fallback.playerDisplay.bodyRadius;
+  }
+
   return {
     sportType,
     layoutId,
     aspect,
     fieldColors: { ...fallback.fieldColors, ...(data.fieldColors as Partial<FieldColors>) },
-    playerDisplay: {
-      ...fallback.playerDisplay,
-      ...(data.playerDisplay as Partial<PlayerDisplaySettings>),
-    },
+    playerDisplay,
     scenes: scenes.length > 0 ? scenes : fallback.scenes,
   };
 }
