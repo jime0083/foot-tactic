@@ -90,6 +90,9 @@ export const ja = {
       sendToBack: '最背面へ',
       undo: '元に戻す',
       redo: 'やり直す',
+      groupTools: 'ツール',
+      groupEdit: '編集',
+      groupAlign: '整列・分布',
     },
     align: {
       left: '左揃え',

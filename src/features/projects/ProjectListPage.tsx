@@ -135,7 +135,12 @@ export function ProjectListPage() {
           aria-label={t('projects.titlePlaceholder')}
           onChange={(event) => setNewTitle(event.target.value)}
         />
-        <button type="button" onClick={() => void handleCreate()} disabled={busy}>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => void handleCreate()}
+          disabled={busy}
+        >
           {t('projects.create')}
         </button>
       </div>

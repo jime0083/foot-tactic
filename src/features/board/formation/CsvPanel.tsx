@@ -78,7 +78,7 @@ export function CsvPanel() {
       </label>
       {csvError && <p role="alert">{csvError}</p>}
       <div className="formation-panel__csv-actions">
-        <button type="button" onClick={handleApplyCsv}>
+        <button type="button" className="btn-primary" onClick={handleApplyCsv}>
           {t('board.formation.applyCsv')}
         </button>
         <button type="button" onClick={() => void handleCopyCsv()} disabled={csvText.trim() === ''}>

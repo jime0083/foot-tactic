@@ -293,6 +293,7 @@ export function MemoArea({ uid, projectId }: MemoAreaProps) {
             <div className="memo-area__form-buttons">
               <button
                 type="button"
+                className="btn-primary"
                 onClick={() => void handleAdd()}
                 disabled={newText.trim() === ''}
               >

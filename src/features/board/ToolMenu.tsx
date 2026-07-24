@@ -34,70 +34,100 @@ export function ToolMenu() {
 
   return (
     <div className="tool-menu" role="toolbar" aria-label={t('board.tools.title')}>
-      {BOARD_TOOLS.map((item) => (
-        <button
-          key={item}
-          type="button"
-          onClick={() => setTool(item)}
-          aria-pressed={tool === item}
-          className={tool === item ? 'tool-menu__item tool-menu__item--active' : 'tool-menu__item'}
-        >
-          {t(`board.tools.${item}`)}
-        </button>
-      ))}
-      <label className="tool-menu__continuous">
-        <input type="checkbox" checked={continuousPlacement} onChange={toggleContinuousPlacement} />
-        {t('board.tools.continuous')}
-      </label>
-      <select
-        aria-label={t('board.tools.selectByType')}
-        value=""
-        onChange={(event) => handleSelectByType(event.target.value)}
-      >
-        <option value="">{t('board.tools.selectByType')}</option>
-        {OBJECT_TYPES.map((type) => (
-          <option key={type} value={type}>
-            {t(`board.tools.${type}`)}
-          </option>
-        ))}
-      </select>
-      <button
-        type="button"
-        disabled={selectedIds.length === 0}
-        onClick={() => removeObjects(selectedIds)}
-      >
-        {t('board.tools.delete')}
-      </button>
-      <button
-        type="button"
-        disabled={selectedIds.length === 0}
-        onClick={() => reorderSelected('front')}
-      >
-        {t('board.tools.bringToFront')}
-      </button>
-      <button
-        type="button"
-        disabled={selectedIds.length === 0}
-        onClick={() => reorderSelected('back')}
-      >
-        {t('board.tools.sendToBack')}
-      </button>
-      <button type="button" disabled={!canUndo} onClick={undo}>
-        {t('board.tools.undo')}
-      </button>
-      <button type="button" disabled={!canRedo} onClick={redo}>
-        {t('board.tools.redo')}
-      </button>
-      {ALIGN_MODES.map((mode) => (
-        <button
-          key={mode}
-          type="button"
-          disabled={selectedIds.length < (mode === 'distributeH' || mode === 'distributeV' ? 3 : 2)}
-          onClick={() => alignSelected(mode)}
-        >
-          {t(`board.align.${mode}`)}
-        </button>
-      ))}
+      {/* 配置ツール */}
+      <div className="tool-group">
+        <span className="tool-group__label">{t('board.tools.groupTools')}</span>
+        <div className="tool-grid">
+          {BOARD_TOOLS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setTool(item)}
+              aria-pressed={tool === item}
+              className={
+                tool === item ? 'tool-menu__item tool-menu__item--active' : 'tool-menu__item'
+              }
+            >
+              {t(`board.tools.${item}`)}
+            </button>
+          ))}
+        </div>
+        <div className="tool-group__row">
+          <label className="tool-menu__continuous">
+            <input
+              type="checkbox"
+              checked={continuousPlacement}
+              onChange={toggleContinuousPlacement}
+            />
+            {t('board.tools.continuous')}
+          </label>
+          <select
+            aria-label={t('board.tools.selectByType')}
+            value=""
+            onChange={(event) => handleSelectByType(event.target.value)}
+          >
+            <option value="">{t('board.tools.selectByType')}</option>
+            {OBJECT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t(`board.tools.${type}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 編集操作 */}
+      <div className="tool-group">
+        <span className="tool-group__label">{t('board.tools.groupEdit')}</span>
+        <div className="tool-group__row">
+          <button
+            type="button"
+            disabled={selectedIds.length === 0}
+            onClick={() => removeObjects(selectedIds)}
+          >
+            {t('board.tools.delete')}
+          </button>
+          <button
+            type="button"
+            disabled={selectedIds.length === 0}
+            onClick={() => reorderSelected('front')}
+          >
+            {t('board.tools.bringToFront')}
+          </button>
+          <button
+            type="button"
+            disabled={selectedIds.length === 0}
+            onClick={() => reorderSelected('back')}
+          >
+            {t('board.tools.sendToBack')}
+          </button>
+          <button type="button" disabled={!canUndo} onClick={undo}>
+            {t('board.tools.undo')}
+          </button>
+          <button type="button" disabled={!canRedo} onClick={redo}>
+            {t('board.tools.redo')}
+          </button>
+        </div>
+      </div>
+
+      {/* 整列・分布 */}
+      <div className="tool-group">
+        <span className="tool-group__label">{t('board.tools.groupAlign')}</span>
+        <div className="tool-group__row">
+          {ALIGN_MODES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              disabled={
+                selectedIds.length < (mode === 'distributeH' || mode === 'distributeV' ? 3 : 2)
+              }
+              onClick={() => alignSelected(mode)}
+            >
+              {t(`board.align.${mode}`)}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

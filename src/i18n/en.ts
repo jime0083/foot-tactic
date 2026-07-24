@@ -99,6 +99,9 @@ export const en: TranslationResource = {
       sendToBack: 'Send to back',
       undo: 'Undo',
       redo: 'Redo',
+      groupTools: 'Tools',
+      groupEdit: 'Edit',
+      groupAlign: 'Align',
     },
     align: {
       left: 'Align left',
