@@ -56,6 +56,37 @@
   border-left: 1px solid var(--panel-border);
 }
 
+/* 左パネル上部のカテゴリタブ */
+.panel-tabs {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel-header-bg);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.panel-tabs button {
+  flex: 1;
+  padding: 0.5rem 0.25rem;
+  border: none;
+  background: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+}
+
+.panel-tabs button[aria-selected='true'] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.panel-tab-content {
+  padding: 0.5rem;
+}
+
 /* 左パネル内の各操作ブロックは縦積み・折り返し(横スクロールを出さない) */
 .board-panel--left > * {
   border-bottom: 1px solid var(--panel-border);

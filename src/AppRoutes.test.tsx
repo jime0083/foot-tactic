@@ -89,6 +89,7 @@ describe('AppRoutes 認証ガード', () => {
     renderWithAuth({ user: mockUser, loading: false }, '/board/abc123');
     await screen.findByTestId('board-canvas');
 
+    await user.click(screen.getByRole('tab', { name: '設定' }));
     await user.click(screen.getByRole('button', { name: 'Googleドキュメントに保存' }));
 
     const link = await screen.findByRole('link', { name: 'ドキュメントを開く' });

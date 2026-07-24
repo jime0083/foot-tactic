@@ -39,7 +39,8 @@ test('主要フロー: ログイン→ボード作成→メモ→PNG書き出し
   await memoArea.getByRole('button', { name: '追加' }).click();
   await expect(page.getByText('E2Eメモ: 前半に決定機')).toBeVisible();
 
-  // PNG書き出し(ダウンロードの発火とファイル名を検証)
+  // 設定タブを開いてPNG書き出し(ダウンロードの発火とファイル名を検証)
+  await page.getByRole('tab', { name: '設定' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'PNG書き出し' }).click();
   const download = await downloadPromise;

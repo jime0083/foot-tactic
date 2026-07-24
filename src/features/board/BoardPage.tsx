@@ -17,6 +17,7 @@ import {
 } from './export/exportPng';
 import { getRegisteredStage } from './export/stageRegistry';
 import { FieldSettingsBar } from './FieldSettingsBar';
+import { CsvPanel } from './formation/CsvPanel';
 import { FormationPanel } from './formation/FormationPanel';
 import { PlayerPanel } from './PlayerPanel';
 import { SceneStrip } from './scenes/SceneStrip';
@@ -42,6 +43,7 @@ export function BoardPage() {
   // モバイルでの左右パネル開閉(デスクトップではCSSで常時表示)
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const [leftTab, setLeftTab] = useState<'tools' | 'formation' | 'csv' | 'settings'>('tools');
 
   /** ボード+メモを新規Googleドキュメントとして保存する */
   const handleSaveToGoogleDoc = async () => {
@@ -175,48 +177,96 @@ export function BoardPage() {
         />
       )}
 
-      {/* 左パネル: ボード操作系 */}
+      {/* 左パネル: ボード操作系(カテゴリタブ) */}
       <aside className={`board-panel board-panel--left${leftOpen ? ' is-open' : ''}`}>
-        <div className="save-bar">
-          {exportError && <span role="alert">{t('board.export.failed')}</span>}
-          {gdocState?.status === 'done' && (
-            <span role="status">
-              {t('board.gdoc.done')}{' '}
-              <a href={gdocState.url} target="_blank" rel="noreferrer">
-                {t('board.gdoc.open')}
-              </a>{' '}
-              <button type="button" onClick={() => setGdocState(null)}>
-                {t('board.gdoc.close')}
-              </button>
-            </span>
-          )}
-          {gdocState?.status === 'error' && (
-            <span role="alert">
-              {t(gdocState.messageKey)}{' '}
-              <button type="button" onClick={() => void handleSaveToGoogleDoc()}>
-                {t('board.gdoc.retry')}
-              </button>
-            </span>
-          )}
+        <nav className="panel-tabs" role="tablist">
           <button
             type="button"
-            onClick={() => void handleSaveToGoogleDoc()}
-            disabled={gdocState?.status === 'working'}
+            role="tab"
+            aria-selected={leftTab === 'tools'}
+            onClick={() => setLeftTab('tools')}
           >
-            {gdocState?.status === 'working' ? t('board.gdoc.saving') : t('board.gdoc.save')}
+            {t('board.panel.categoryTools')}
           </button>
-          <button type="button" onClick={() => void handleExportPng()}>
-            {t('board.export.png')}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={leftTab === 'formation'}
+            onClick={() => setLeftTab('formation')}
+          >
+            {t('board.panel.categoryFormation')}
           </button>
-          <span role="status">{t(`board.save.${saveState}`)}</span>
-          <button type="button" onClick={() => void saveNow()} disabled={saveState === 'saving'}>
-            {t('board.save.button')}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={leftTab === 'csv'}
+            onClick={() => setLeftTab('csv')}
+          >
+            {t('board.panel.categoryCsv')}
           </button>
-        </div>
-        <FieldSettingsBar />
-        <ToolMenu />
-        <FormationPanel />
+          <button
+            type="button"
+            role="tab"
+            aria-selected={leftTab === 'settings'}
+            onClick={() => setLeftTab('settings')}
+          >
+            {t('board.panel.categorySettings')}
+          </button>
+        </nav>
+
+        {/* 選択中オブジェクトの編集(選択時のみ中身が表示される) */}
         <PlayerPanel />
+
+        <div className="panel-tab-content">
+          {leftTab === 'tools' && <ToolMenu />}
+          {leftTab === 'formation' && <FormationPanel />}
+          {leftTab === 'csv' && <CsvPanel />}
+          {leftTab === 'settings' && (
+            <>
+              <div className="save-bar">
+                {exportError && <span role="alert">{t('board.export.failed')}</span>}
+                {gdocState?.status === 'done' && (
+                  <span role="status">
+                    {t('board.gdoc.done')}{' '}
+                    <a href={gdocState.url} target="_blank" rel="noreferrer">
+                      {t('board.gdoc.open')}
+                    </a>{' '}
+                    <button type="button" onClick={() => setGdocState(null)}>
+                      {t('board.gdoc.close')}
+                    </button>
+                  </span>
+                )}
+                {gdocState?.status === 'error' && (
+                  <span role="alert">
+                    {t(gdocState.messageKey)}{' '}
+                    <button type="button" onClick={() => void handleSaveToGoogleDoc()}>
+                      {t('board.gdoc.retry')}
+                    </button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void handleSaveToGoogleDoc()}
+                  disabled={gdocState?.status === 'working'}
+                >
+                  {gdocState?.status === 'working' ? t('board.gdoc.saving') : t('board.gdoc.save')}
+                </button>
+                <button type="button" onClick={() => void handleExportPng()}>
+                  {t('board.export.png')}
+                </button>
+                <span role="status">{t(`board.save.${saveState}`)}</span>
+                <button
+                  type="button"
+                  onClick={() => void saveNow()}
+                  disabled={saveState === 'saving'}
+                >
+                  {t('board.save.button')}
+                </button>
+              </div>
+              <FieldSettingsBar />
+            </>
+          )}
+        </div>
       </aside>
 
       {/* 中央: ボード + シーン */}
