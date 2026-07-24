@@ -97,6 +97,7 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           radius={object.size * 0.55}
           stroke={selected ? '#00e5ff' : object.color}
           strokeWidth={object.size * 0.28}
+          fill="transparent"
           hitStrokeWidth={object.size}
           {...common}
         />
@@ -129,7 +130,7 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           radius={object.radius}
           stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
-          fill={withOpacity(object.fill, object.fillOpacity)}
+          fill={withOpacity(object.fill, object.fillOpacity) ?? 'transparent'}
           {...common}
         />
       );
@@ -143,7 +144,7 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           height={object.height}
           stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
-          fill={withOpacity(object.fill, object.fillOpacity)}
+          fill={withOpacity(object.fill, object.fillOpacity) ?? 'transparent'}
           {...common}
         />
       );
@@ -157,7 +158,7 @@ function ObjectShape({ object, selected }: { object: BoardObject; selected: bool
           closed
           stroke={selected ? '#00e5ff' : object.stroke}
           strokeWidth={object.strokeWidth}
-          fill={withOpacity(object.fill, object.fillOpacity)}
+          fill={withOpacity(object.fill, object.fillOpacity) ?? 'transparent'}
           {...common}
         />
       );

@@ -91,7 +91,7 @@ export interface PlayerDisplaySettings {
 }
 
 export const DEFAULT_PLAYER_DISPLAY: PlayerDisplaySettings = {
-  bodyRadius: 1.2,
+  bodyRadius: 2.4,
   nameFontSize: 1.6,
 };
 

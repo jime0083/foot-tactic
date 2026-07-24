@@ -82,3 +82,71 @@ test('オブジェクトの配置・クリック選択・削除ができる', as
   await deleteButton.click();
   await expect(deleteButton).toBeDisabled();
 });
+
+test('選手を選択すると編集欄が表示され削除できる', async ({ page }) => {
+  await page.goto('/login');
+  await signInWithEmulator(page);
+  await expect(page.getByRole('heading', { name: 'プロジェクト一覧' })).toBeVisible();
+  await page.getByLabel('プロジェクト名').fill('選手編集テスト');
+  await page.getByRole('button', { name: '新規作成' }).click();
+  await expect(page.getByTestId('board-canvas')).toBeVisible();
+
+  const stage = page.locator('.board-canvas__stage');
+  await expect(stage).toBeVisible();
+  const box = await stage.boundingBox();
+  if (!box) {
+    throw new Error('stage bounding box not found');
+  }
+  const center = { x: box.width / 2, y: box.height / 2 };
+
+  const toolbar = page.getByRole('toolbar', { name: 'ツール' });
+
+  // 選手を配置
+  await toolbar.getByRole('button', { name: '選手', exact: true }).click();
+  await stage.click({ position: center });
+
+  // 選択して背番号の編集欄が表示されることを確認
+  await toolbar.getByRole('button', { name: '選択', exact: true }).click();
+  await stage.click({ position: center });
+  await expect(page.getByRole('textbox', { name: '背番号', exact: true })).toBeVisible();
+
+  // 削除できることを確認
+  const deleteButton = toolbar.getByRole('button', { name: '削除', exact: true });
+  await expect(deleteButton).toBeEnabled();
+  await deleteButton.click();
+  await expect(deleteButton).toBeDisabled();
+});
+
+test('マーカーは中央クリックで選択でき削除できる', async ({ page }) => {
+  await page.goto('/login');
+  await signInWithEmulator(page);
+  await expect(page.getByRole('heading', { name: 'プロジェクト一覧' })).toBeVisible();
+  await page.getByLabel('プロジェクト名').fill('マーカー削除テスト');
+  await page.getByRole('button', { name: '新規作成' }).click();
+  await expect(page.getByTestId('board-canvas')).toBeVisible();
+
+  const stage = page.locator('.board-canvas__stage');
+  await expect(stage).toBeVisible();
+  const box = await stage.boundingBox();
+  if (!box) {
+    throw new Error('stage bounding box not found');
+  }
+  const center = { x: box.width / 2, y: box.height / 2 };
+
+  const toolbar = page.getByRole('toolbar', { name: 'ツール' });
+  const deleteButton = toolbar.getByRole('button', { name: '削除', exact: true });
+
+  // マーカーを中央に配置
+  await toolbar.getByRole('button', { name: 'マーカー', exact: true }).click();
+  await stage.click({ position: center });
+
+  // 選択ツールでマーカーの中央(リングの内側)をクリックして選択できる(透明塗りで内部がヒットする)
+  await toolbar.getByRole('button', { name: '選択', exact: true }).click();
+  await expect(deleteButton).toBeDisabled();
+  await stage.click({ position: center });
+  await expect(deleteButton).toBeEnabled();
+
+  // 削除できる
+  await deleteButton.click();
+  await expect(deleteButton).toBeDisabled();
+});
