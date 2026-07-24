@@ -76,10 +76,10 @@ describe('ProjectListPage', () => {
     await screen.findByText('vs FC東京');
 
     await userEvent.type(screen.getByLabelText('プロジェクト名'), '週末の試合');
-    await userEvent.selectOptions(screen.getByLabelText('競技'), 'futsal');
     await userEvent.click(screen.getByRole('button', { name: '新規作成' }));
 
-    expect(createProject).toHaveBeenCalledWith('u1', '週末の試合', 'futsal');
+    // 競技種別は11人制固定
+    expect(createProject).toHaveBeenCalledWith('u1', '週末の試合', 'soccer11');
   });
 
   it('タイトル未入力の場合は既定タイトルで作成される', async () => {

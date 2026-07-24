@@ -12,11 +12,12 @@ describe('FieldSettingsBar', () => {
     });
   });
 
-  it('競技・表示・比率のセレクトが表示される', () => {
+  it('表示レイアウトのセレクトが表示される(競技・比率の切替は持たない)', () => {
     render(<FieldSettingsBar />);
-    expect(screen.getByLabelText('競技')).toHaveValue('soccer11');
     expect(screen.getByLabelText('表示')).toHaveValue('full-landscape');
-    expect(screen.getByLabelText('比率')).toHaveValue('16:9');
+    // 競技種別・ピッチ比率の切替UIは削除済み(11人制・16:9固定)
+    expect(screen.queryByLabelText('競技')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('比率')).not.toBeInTheDocument();
   });
 
   it('表示レイアウトは8種類から選択できる', () => {
@@ -25,17 +26,9 @@ describe('FieldSettingsBar', () => {
     expect(options).toHaveLength(8);
   });
 
-  it('競技を切り替えるとストアが更新される', async () => {
-    render(<FieldSettingsBar />);
-    await userEvent.selectOptions(screen.getByLabelText('競技'), 'futsal');
-    expect(useBoardStore.getState().sportType).toBe('futsal');
-  });
-
-  it('レイアウトとアスペクト比を切り替えるとストアが更新される', async () => {
+  it('レイアウトを切り替えるとストアが更新される', async () => {
     render(<FieldSettingsBar />);
     await userEvent.selectOptions(screen.getByLabelText('表示'), 'full-portrait');
-    await userEvent.selectOptions(screen.getByLabelText('比率'), '9:16');
     expect(useBoardStore.getState().layoutId).toBe('full-portrait');
-    expect(useBoardStore.getState().aspect).toBe('9:16');
   });
 });

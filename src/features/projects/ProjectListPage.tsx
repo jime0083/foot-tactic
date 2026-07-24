@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/features/auth/useAuth';
 import { SceneThumbnail } from '@/features/board/scenes/SceneThumbnail';
-import type { SportType } from '@/features/board/field/fieldSpec';
 import { collectTags, filterProjects } from './projectFilter';
 import {
   createProject,
@@ -14,8 +13,6 @@ import {
   type ProjectListItem,
 } from './projectService';
 
-const SPORT_TYPES: SportType[] = ['soccer11', 'soccer8', 'futsal'];
-
 export function ProjectListPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -23,7 +20,6 @@ export function ProjectListPage() {
   const [items, setItems] = useState<ProjectListItem[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
-  const [newSportType, setNewSportType] = useState<SportType>('soccer11');
   const [busy, setBusy] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [tagFilter, setTagFilter] = useState('');
@@ -61,7 +57,8 @@ export function ProjectListPage() {
     setBusy(true);
     try {
       const title = newTitle.trim() || t('projects.defaultTitle');
-      const projectId = await createProject(user.uid, title, newSportType);
+      // 競技種別は11人制固定
+      const projectId = await createProject(user.uid, title, 'soccer11');
       void navigate(`/board/${projectId}`);
     } catch (error) {
       console.error('プロジェクトの作成に失敗しました', error);
@@ -138,17 +135,6 @@ export function ProjectListPage() {
           aria-label={t('projects.titlePlaceholder')}
           onChange={(event) => setNewTitle(event.target.value)}
         />
-        <select
-          aria-label={t('board.sportLabel')}
-          value={newSportType}
-          onChange={(event) => setNewSportType(event.target.value as SportType)}
-        >
-          {SPORT_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {t(`board.sport.${type}`)}
-            </option>
-          ))}
-        </select>
         <button type="button" onClick={() => void handleCreate()} disabled={busy}>
           {t('projects.create')}
         </button>
