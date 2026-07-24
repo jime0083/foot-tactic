@@ -89,4 +89,23 @@ describe('FormationPanel', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(useBoardStore.getState().objects).toHaveLength(0);
   });
+
+  it('CSV作成ツールでフォーム入力からCSVを生成しCSV欄に反映する', async () => {
+    await openPanel();
+    await userEvent.click(screen.getByRole('tab', { name: 'CSV一括' }));
+    await userEvent.click(screen.getByRole('button', { name: 'CSV作成ツール' }));
+
+    fireEvent.change(screen.getByLabelText('ホーム選手(背番号,名前)'), {
+      target: { value: '1,GK田中\n10,山本' },
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'CSVを生成' }));
+
+    const csvBox = screen.getByLabelText('CSVデータ') as HTMLTextAreaElement;
+    expect(csvBox.value).toContain('###home,4-4-2');
+    expect(csvBox.value).toContain('1,GK田中');
+    expect(csvBox.value).toContain('10,山本');
+    // 生成したCSVでそのまま配置できる
+    await userEvent.click(screen.getByRole('button', { name: 'CSVから配置' }));
+    expect(useBoardStore.getState().objects).toHaveLength(11);
+  });
 });

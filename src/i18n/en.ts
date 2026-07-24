@@ -131,6 +131,14 @@ export const en: TranslationResource = {
       csvPlaceholder: '###home,4-4-2\n1,GK Tanaka\n2,RB\n...\n###away,4-3-3\n1,GK Sato\n...',
       applyCsv: 'Place from CSV',
       csvNoTeam: 'No line starting with ###home or ###away was found.',
+      csvCopy: 'Copy',
+      csvCopied: 'Copied',
+      csvTool: 'CSV builder',
+      csvToolHelp:
+        'Pick a system, enter a player list, and press "Generate CSV" to fill the CSV box above. No need to memorize the CSV format.',
+      generateCsv: 'Generate CSV',
+      toolHomeRoster: 'Home players (number,name)',
+      toolAwayRoster: 'Away players (number,name)',
     },
     scenes: {
       title: 'Scenes',

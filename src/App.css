@@ -371,6 +371,25 @@
   line-height: 1.5;
 }
 
+.formation-panel__csv-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.formation-panel__tool {
+  margin-top: 0.6rem;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 0.5rem;
+}
+
+.formation-panel__tool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
 .scene-strip {
   display: flex;
   gap: 0.3rem;

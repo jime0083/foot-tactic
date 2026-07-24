@@ -121,6 +121,14 @@ export const ja = {
       csvPlaceholder: '###home,4-4-2\n1,GK田中\n2,右SB\n...\n###away,4-3-3\n1,GK佐藤\n...',
       applyCsv: 'CSVから配置',
       csvNoTeam: '###home または ###away で始まる行が見つかりません。',
+      csvCopy: 'コピー',
+      csvCopied: 'コピーしました',
+      csvTool: 'CSV作成ツール',
+      csvToolHelp:
+        'システムを選び選手リストを入力して「CSVを生成」を押すと、上のCSV欄に反映されます。CSV形式を覚えなくても作成できます。',
+      generateCsv: 'CSVを生成',
+      toolHomeRoster: 'ホーム選手(背番号,名前)',
+      toolAwayRoster: 'アウェイ選手(背番号,名前)',
     },
     scenes: {
       title: 'シーン',
