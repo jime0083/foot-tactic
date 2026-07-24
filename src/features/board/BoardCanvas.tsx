@@ -235,9 +235,10 @@ export function BoardCanvas() {
     screenToField(stageTransform, toLocalPoint(event));
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
     const currentTool = useBoardStore.getState().tool;
+    // 図形のドラッグ配置・手書きは、ラッパーdiv上でドラッグ軌跡を描くためポインタをキャプチャする
     if (DRAG_SHAPE_TYPES.includes(currentTool as DragShapeType)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
       const fieldPoint = toFieldPoint(event);
       setDraft({
         kind: 'drag',
@@ -248,9 +249,12 @@ export function BoardCanvas() {
       return;
     }
     if (currentTool === 'freehand') {
+      event.currentTarget.setPointerCapture(event.pointerId);
       setDraft({ kind: 'freehand', trace: [toFieldPoint(event)] });
       return;
     }
+    // 選択ツール時はポインタをキャプチャしない。
+    // キャプチャするとStage内のKonvaオブジェクトのドラッグ・クリック選択が動作しなくなるため。
     activePointers.current.set(event.pointerId, toLocalPoint(event));
   };
 
